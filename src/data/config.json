@@ -81,8 +81,8 @@
     }
   },
   "gifts": {
-    "message": "Tu presencia es nuestro mayor regalo. Para celebrar este día especial juntos, el costo por persona es de",
-    "costPerPerson": "50",
+    "message": "Tu presencia es nuestro mayor regalo. Para celebrar este día especial juntos, el costo es de",
+    "costPerPerson": "75.000",
     "groom": {
       "name": "Bruno Lavayen",
       "bankName": "Banco Ejemplo",
