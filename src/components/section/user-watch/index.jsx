@@ -15,10 +15,8 @@ export default function UserWatch({ onClick }) {
   return (
     <div className="py-10 text-center space-y-28">
       <img
-        className="mx-auto scale-110"
+        className="mx-auto w-64 sm:w-80 md:w-96 max-w-full px-4"
         src="images/bodafix.png"
-        width={'125px'}
-        height={'48px'}
         alt="boda-ivi-coco"
       />
       <div>
