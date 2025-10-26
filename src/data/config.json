@@ -21,12 +21,12 @@
   "url_video": "https://slametandfatma.wedding/video/myvideo.mp4",
   "intro": "Después de que Coco e Ivi se conocieran en 2006, su amor ha crecido y florecido a lo largo de los años. Ahora están emocionados de compartir su historia de amor con ustedes antes de su gran día.",
   "breaking_news_img": "https://slametandfatma.wedding/galeri/news.jpg",
-  "breaking_news_content": "<p>¡Hola! Como ustedes son personas importantes que llenan nuestros días, queremos informarles que ¡pronto nos casamos! ✨ </p><p className='mt-4'>Antes que nada, pedimos disculpas a nuestros amigos y familiares por no poder invitarles a nuestro día feliz, ya que nuestra boda será un evento íntimo celebrado en Bekasi y solo asistirá la familia y allegados cercanos.</p><p className='mt-4'>Aun así, esperamos sinceramente sus mejores deseos para el buen desarrollo de la ceremonia y para los días felices que vendrán.</p><p className='mt-4'>Con todo nuestro cariño,</p><p>Los novios ❤️</p>",
+  "breaking_news_content": "<p>¡Hola queridos amigos y familiares! ✨</p><p className='mt-4'>Después de muchos años juntos, hemos decidido dar el gran paso y unir nuestras vidas en matrimonio. Queremos que sean parte de este momento tan especial para nosotros.</p><p className='mt-4'>La celebración comenzará con nuestra ceremonia religiosa, donde uniremos nuestras vidas ante Dios. Posteriormente, los invitamos a la recepción donde celebraremos nuestro casamiento civil, seguido de una gran fiesta para compartir juntos esta felicidad.</p><p className='mt-4'>Su presencia hará de este día un recuerdo inolvidable. ¡Los esperamos con mucho cariño!</p><p className='mt-4'>Con todo nuestro amor,</p><p>Coco e Ivi 💒❤️</p>",
   "love_story": [
     {
       "image_url": "https://slametandfatma.wedding/galeri/story1.jpeg",
       "title": "Episodio 1: Cómo nos conocimos",
-      "description": "Slamet y Fatma se conocieron por primera vez en 2015 como compañeros de grupo durante la orientación de nuevos estudiantes en la Escuela de Formación Profesional."
+      "description": "Coco e Ivi se conocieron por primera vez en 2015 como compañeros de grupo durante la orientación de nuevos estudiantes en la Escuela de Formación Profesional."
     },
     {
       "image_url": "https://slametandfatma.wedding/galeri/story2.jpg",
@@ -36,12 +36,12 @@
     {
       "image_url": "https://slametandfatma.wedding/galeri/story3.jpeg",
       "title": "Episodio 3: Decidir pasar la vida juntos",
-      "description": "Después de más de 8 años de relación, en diciembre de 2024 Slamet expresó su intención de pedirle matrimonio a Fatma."
+      "description": "Después de más de 8 años de relación, en diciembre de 2024 Coco expresó su intención de pedirle matrimonio a Ivi."
     },
     {
       "image_url": "https://slametandfatma.wedding/galeri/story4.jpeg",
       "title": "[Próximamente] Episodio final: El comienzo del para siempre",
-      "description": "Cuando llegue el gran día, Slamet y Fatma compartirán su emotiva historia aquí. ¡Nos vemos en la próxima historia feliz!"
+      "description": "Cuando llegue el gran día, Coco e Ivi compartirán su emotiva historia aquí. ¡Nos vemos en la próxima historia feliz!"
     }
   ],
   "gallery": [
