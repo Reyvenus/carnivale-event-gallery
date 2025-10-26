@@ -19,7 +19,7 @@ export default function UserWatch({ onClick }) {
         src="images/bodafix.png"
         width={'125px'}
         height={'48px'}
-        alt="nikahfix"
+        alt="boda-ivi-coco"
       />
       <div>
         <p className="mb-10 text-2xl">Quien es el Invitado?</p>
@@ -29,7 +29,7 @@ export default function UserWatch({ onClick }) {
             src="images/guest-icon.png"
             width={100}
             height={100}
-            alt="nikahfix"
+            alt="boda-ivi-coco"
           />
           <p className="text-xl mt-2 group-hover:scale-125 group-hover:pt-5">
             {to}
