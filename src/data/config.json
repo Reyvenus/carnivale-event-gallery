@@ -1,0 +1,105 @@
+{
+  "pegantin": {
+    "pria": {
+      "foto": "https://slametandfatma.wedding/galeri/slamett.jpeg",
+      "panggilan": "Bruno",
+      "nama": "Bruno Lavayen",
+      "bapak": "Nicasio",
+      "ibu": "Cecilia"
+    },
+    "wanita": {
+      "foto": "https://slametandfatma.wedding/galeri/fatmaa.jpeg",
+      "panggilan": "Ivana",
+      "nama": "Ivana Liebeskind",
+      "bapak": "Mari",
+      "ibu": "Luis"
+    }
+  },
+  "audio_url": "https://slametandfatma.wedding/audio/myaudio.mp3",
+  "tanggal_pernikahan": "24 de Enero 2026",
+  "thumbnail_image_url": "https://slametandfatma.wedding/galeri/nikahfix.jpg",
+  "url_video": "https://slametandfatma.wedding/video/myvideo.mp4",
+  "intro": "Después de que Coco e Ivi se conocieran en 2006, su amor ha crecido y florecido a lo largo de los años. Ahora están emocionados de compartir su historia de amor con ustedes antes de su gran día.",
+  "breaking_news_img": "https://slametandfatma.wedding/galeri/news.jpg",
+  "breaking_news_content": "<p>¡Hola! Como ustedes son personas importantes que llenan nuestros días, queremos informarles que ¡pronto nos casamos! ✨ </p><p className='mt-4'>Antes que nada, pedimos disculpas a nuestros amigos y familiares por no poder invitarles a nuestro día feliz, ya que nuestra boda será un evento íntimo celebrado en Bekasi y solo asistirá la familia y allegados cercanos.</p><p className='mt-4'>Aun así, esperamos sinceramente sus mejores deseos para el buen desarrollo de la ceremonia y para los días felices que vendrán.</p><p className='mt-4'>Con todo nuestro cariño,</p><p>Los novios ❤️</p>",
+  "love_story": [
+    {
+      "image_url": "https://slametandfatma.wedding/galeri/story1.jpeg",
+      "title": "Episodio 1: Cómo nos conocimos",
+      "description": "Slamet y Fatma se conocieron por primera vez en 2015 como compañeros de grupo durante la orientación de nuevos estudiantes en la Escuela de Formación Profesional."
+    },
+    {
+      "image_url": "https://slametandfatma.wedding/galeri/story2.jpg",
+      "title": "Episodio 2: Un amor que crece con el tiempo",
+      "description": "Después de un año de amistad, finalmente se dieron cuenta de que los sentimientos que tenían el uno por el otro no eran solo amistad."
+    },
+    {
+      "image_url": "https://slametandfatma.wedding/galeri/story3.jpeg",
+      "title": "Episodio 3: Decidir pasar la vida juntos",
+      "description": "Después de más de 8 años de relación, en diciembre de 2024 Slamet expresó su intención de pedirle matrimonio a Fatma."
+    },
+    {
+      "image_url": "https://slametandfatma.wedding/galeri/story4.jpeg",
+      "title": "[Próximamente] Episodio final: El comienzo del para siempre",
+      "description": "Cuando llegue el gran día, Slamet y Fatma compartirán su emotiva historia aquí. ¡Nos vemos en la próxima historia feliz!"
+    }
+  ],
+  "gallery": [
+    "https://slametandfatma.wedding/galeri/1.jpg",
+    "https://slametandfatma.wedding/galeri/2.jpg",
+    "https://slametandfatma.wedding/galeri/3.jpg",
+    "https://slametandfatma.wedding/galeri/4.jpg",
+    "https://slametandfatma.wedding/galeri/5.jpg",
+    "https://slametandfatma.wedding/galeri/6.jpg",
+    "https://slametandfatma.wedding/galeri/7.jpg",
+    "https://slametandfatma.wedding/galeri/8.jpg",
+    "https://slametandfatma.wedding/galeri/9.jpg"
+  ],
+  "show_menu": {
+    "breaking_news": true,
+    "bride_and_groom": true,
+    "love_story": true,
+    "gallery": true,
+    "wish": true
+  },
+  "locations": {
+    "ceremony": {
+      "title": "Ceremonia Religiosa",
+      "time": "15:00 hrs",
+      "address": "Capilla San Ignacio de Loyola, Av. Río de la Plata, Palpalá - Jujuy",
+      "mapUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3637.5697379386284!2d-65.21722348882807!3d-24.25682298742042!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x941b076aa7cb8f01%3A0x73925b7198edab86!2sCapilla%20San%20Ignacio%20de%20Loyola!5e0!3m2!1ses-419!2sar!4v1761454848635!5m2!1ses-419!2sar",
+      "mapsLink": "https://maps.app.goo.gl/CMA4urZ4bbFhvDoA8",
+      "icon": "⛪"
+    },
+    "reception": {
+      "title": "Recepción y Fiesta",
+      "time": "18:00 hrs",
+      "address": "Niza Eventos, RN 66 Palpalá - Jujuy",
+      "mapUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3637.8108910966052!2d-65.23639248882826!3d-24.24839208710189!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x941b070ec3c93995%3A0xc8ca4ea6a79e7fec!2sNiza%20Eventos!5e0!3m2!1ses-419!2sar!4v1761455175484!5m2!1ses-419!2sar",
+      "mapsLink": "https://maps.app.goo.gl/CMA4urZ4bbFhvDoA8",
+      "icon": "🎉"
+    }
+  },
+  "gifts": {
+    "message": "Tu presencia es nuestro mayor regalo. Para celebrar este día especial juntos, el costo por persona es de",
+    "costPerPerson": "50",
+    "groom": {
+      "name": "Bruno Lavayen",
+      "bankName": "Banco Ejemplo",
+      "cbu": "0000003100010000000000",
+      "alias": "bruno.lavayen.boda",
+      "icon": "🤵",
+      "whatsappNumber": "5493885130544",
+      "whatsappMessage": "¡Hola Bruno! 🤵 Confirmo mi presencia en tu boda con Ivana. ¡Será un honor acompañarlos en este día tan especial! 💍✨"
+    },
+    "bride": {
+      "name": "Ivana Liebeskind",
+      "bankName": "Banco Ejemplo",
+      "cbu": "0000003100010000000001",
+      "alias": "ivana.liebeskind.boda",
+      "icon": "👰",
+      "whatsappNumber": "5493885747152",
+      "whatsappMessage": "¡Hola Ivana! 👰 Confirmo mi presencia en tu boda con Bruno. ¡No me lo perdería por nada! Nos vemos el 24 de enero 💒❤️"
+    }
+  }
+}

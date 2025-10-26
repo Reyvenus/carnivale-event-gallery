@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BODAFIX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #141414;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial Black', Impact, sans-serif;
+            overflow: hidden;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 2px;
+            padding: 20px;
+        }
+
+        .letter {
+            color: #E50914;
+            font-weight: 900;
+            font-size: 120px;
+            line-height: 1;
+            text-shadow: 
+                3px 3px 0px rgba(0, 0, 0, 0.8),
+                6px 6px 15px rgba(0, 0, 0, 0.9);
+            transform-origin: top;
+            letter-spacing: -5px;
+        }
+
+        .letter:nth-child(1) { margin-right: -7px; transform: scaleY(0.96) scaleX(0.92); } /* B */
+        .letter:nth-child(2) { margin-right: -7px; transform: scaleY(0.88) scaleX(0.85); } /* O */
+        .letter:nth-child(3) { transform: scaleY(0.85); } /* D */
+        .letter:nth-child(4) { transform: scaleY(0.85); } /* A */
+        .letter:nth-child(5) { transform: scaleY(0.85); } /* F */
+        .letter:nth-child(6) { transform: scaleY(0.90); } /* I */
+        .letter:nth-child(7) { transform: scaleY(0.92); } /* X */
+
+        @media (max-width: 768px) {
+            .letter {
+                font-size: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <span class="letter">B</span>
+        <span class="letter">O</span>
+        <span class="letter">D</span>
+        <span class="letter">A</span>
+        <span class="letter">F</span>
+        <span class="letter">I</span>
+        <span class="letter">X</span>
+    </div>
+</body>
+</html>
