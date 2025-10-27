@@ -115,9 +115,9 @@ export default function DetailInfo() {
             />
           </div>
 
-          {/* {data.show_menu.wish && import.meta.env.VITE_APP_TABLE_NAME ? (
-          <WishSection />
-        ) : null} */}
+          {data.show_menu.wish && import.meta.env.VITE_APP_TABLE_NAME ? (
+            <WishSection />
+          ) : null}
         </div>
         <Footer />
       </div>
