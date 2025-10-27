@@ -2,28 +2,75 @@ import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import supabase from '../../../lib/supabaseClient';
 
-const WishItem = forwardRef(({ name, message, color }, ref) => (
-  <div ref={ref} className="flex gap-3 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
-    <div className="flex-shrink-0">
-      <img
-        width={32}
-        height={32}
-        src="images/face.png"
-        style={{
-          backgroundColor: color,
-          minWidth: 32,
-          minHeight: 32,
-        }}
-        className="rounded-md shadow-md"
-        alt="Avatar"
-      />
+const WishItem = forwardRef(({ name, message, color }, ref) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showButton, setShowButton] = useState(false);
+  const textRef = useRef(null);
+
+  useEffect(() => {
+    if (textRef.current) {
+      const lineHeight = parseInt(window.getComputedStyle(textRef.current).lineHeight);
+      const height = textRef.current.scrollHeight;
+      const lines = height / lineHeight;
+      setShowButton(lines > 3); // Mostrar botón si tiene más de 3 líneas
+    }
+  }, [message]);
+
+  return (
+    <div ref={ref} className="p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
+      <div className="flex gap-3">
+        <div className="flex-shrink-0">
+          <img
+            width={32}
+            height={32}
+            src="images/face.png"
+            style={{
+              backgroundColor: color,
+              minWidth: 32,
+              minHeight: 32,
+            }}
+            className="rounded-md shadow-md"
+            alt="Avatar"
+          />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-white font-semibold text-sm mb-1">{name}</p>
+          <div className="relative">
+            <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? '' : 'max-h-[3.3rem]'}`}>
+              <p 
+                ref={textRef}
+                className="text-[#A3A1A1] text-xs leading-relaxed break-words"
+              >
+                {message}
+              </p>
+            </div>
+            {!isExpanded && showButton && (
+              <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-t from-[#0f0f0f]/80 to-transparent pointer-events-none"></div>
+            )}
+          </div>
+          {showButton && (
+            <div className="flex justify-start mt-1">
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="text-white/60 hover:text-white text-xs flex items-center gap-1 transition-colors"
+              >
+                <span>{isExpanded ? 'Ver menos' : 'Ver más'}</span>
+                <svg 
+                  className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
-    <div className="flex-1 min-w-0">
-      <p className="text-white font-semibold text-sm mb-1">{name}</p>
-      <p className="text-[#A3A1A1] text-xs leading-relaxed break-words">{message}</p>
-    </div>
-  </div>
-));
+  );
+});
 
 WishItem.displayName = 'WishItem';
 
@@ -44,6 +91,7 @@ const colorList = [
 
 export default function WishSection() {
   const lastChildRef = useRef(null);
+  const messageCountRef = useRef(0); // Usar ref para evitar problemas de closure
 
   const [data, setData] = useState([]);
   const [name, setName] = useState('');
@@ -51,6 +99,8 @@ export default function WishSection() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showNewMessages, setShowNewMessages] = useState(false);
+  const [bannerKey, setBannerKey] = useState(0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -96,13 +146,30 @@ export default function WishSection() {
   };
 
   const fetchData = async () => {
-    const { data, error } = await supabase
+    const { data: newData, error } = await supabase
       .from(import.meta.env.VITE_APP_TABLE_NAME) // Replace 'your_table' with the actual table name
       .select('name, message, color')
-      .eq('approved', true);
+      .eq('approved', true)
+      .order('created_at', { ascending: false });
 
-    if (error) console.error('Error fetching data: ', error);
-    else setData(data);
+    if (error) {
+      console.error('Error fetching data: ', error);
+    } else {
+      const previousCount = messageCountRef.current;
+      const newCount = newData.length;
+      
+      // Solo detectar nuevos mensajes si ya teníamos mensajes antes
+      // Y si la nueva cantidad es MAYOR (no igual)
+      if (previousCount > 0 && newCount > previousCount) {
+        console.log('🔔 Nuevos mensajes detectados! Antes:', previousCount, 'Ahora:', newCount);
+        setShowNewMessages(true);
+        setBannerKey(prev => prev + 1); // Cambiar key para forzar re-render
+      }
+      
+      // Actualizar el ref con el nuevo conteo
+      messageCountRef.current = newCount;
+      setData(newData);
+    }
   };
 
   const scrollToLastChild = () => {
@@ -112,7 +179,16 @@ export default function WishSection() {
   };
 
   useEffect(() => {
+    // Cargar mensajes inicialmente
     fetchData();
+    
+    // Auto-refresh cada 5 segundos para obtener nuevos mensajes aprobados
+    const interval = setInterval(() => {
+      fetchData();
+    }, 5000); // 5 segundos
+    
+    // Cleanup: limpiar el interval cuando el componente se desmonte
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -149,7 +225,38 @@ export default function WishSection() {
         </div>
 
         {/* Lista de mensajes integrada */}
-        <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div className="bg-white/5 rounded-xl p-4 border border-white/10 relative">
+          {/* Banner de nuevos mensajes */}
+          {showNewMessages && (
+            <div 
+              key={bannerKey}
+              className="mb-4 bg-gradient-to-r from-blue-500/20 to-purple-600/20 border border-blue-400/30 rounded-lg p-3 animate-fade-in-up relative z-10"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 flex-1">
+                  <div className="flex-shrink-0 bg-blue-500/20 rounded-full p-1">
+                    <svg className="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                  </div>
+                  <div className="text-left flex-1">
+                    <p className="text-blue-200 font-semibold text-sm">🎉 ¡Nuevo mensaje!</p>
+                    <p className="text-blue-300/80 text-xs">Alguien mando un deseo para los novios!</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowNewMessages(false)}
+                  className="flex-shrink-0 text-blue-300/60 hover:text-blue-200 transition-colors p-1 hover:bg-blue-500/10 rounded"
+                  aria-label="Cerrar"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
+          
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-white/90 text-sm font-semibold">
               📝 Mensajes ({data.length})
@@ -160,6 +267,7 @@ export default function WishSection() {
               </span>
             )}
           </div>
+          
           <div className="max-h-[20rem] overflow-y-auto space-y-3 wish-container pr-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
             {data.length === 0 ? (
               <div className="text-center py-12 text-white/40 text-sm">
