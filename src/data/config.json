@@ -26,7 +26,7 @@
     {
       "image_url": "/images/1-cuandonosconocimos.jpg",
       "title": "Capitulo 1: Cuando nos conocimos",
-      "description": "En el 2006 con 14 y 16 años, se conocieron una noche en la que todo parecía casual, pero nada lo fue. Sus amigos, cómplices del destino, organizaron una fiesta improvisada sin imaginar que estaban dando inicio a una historia que marcaría sus vidas. Entre risas, música y la inocencia de aquel tiempo, sus miradas se cruzaron por primera vez. Desde ese instante, algo sutil pero poderoso empezó a crecer entre ellos, una conexión que ni el paso de los años lograría apagar"
+      "description": "Con 14 y 16 años, se conocieron una noche en la que todo parecía casual, pero nada lo fue. Entre amigos, risas, música y la inocencia de aquel tiempo, sus miradas se cruzaron por primera vez. Desde ese instante, algo sutil pero poderoso empezó a crecer entre ellos, una conexión que ni el paso de los años lograría apagar"
     },
     {
       "image_url": "/images/2-amoradolescente.jpg",
@@ -44,9 +44,9 @@
       "description": "Con la ayuda de Dios y el esfuerzo del trabajo, emprendieron viajes que jamás imaginaron. México y Europa fueron solo el comienzo de sus aventuras, y aún quedan muchos destinos más por descubrir, mientras construyen juntos recuerdos que durarán toda la vida"
     },
     {
-      "image_url": "https://slametandfatma.wedding/galeri/story4.jpeg",
+      "image_url": "/images/5-parasiempre.jpg",
       "title": "[Próximamente] Episodio final: El comienzo del para siempre",
-      "description": "Cuando llegue el gran día, Coco e Ivi compartirán su emotiva historia aquí. ¡Nos vemos en la próxima historia feliz!"
+      "description": "Decidieron afirmar su AMOR antes Dios, celebrando junto a sus seres queridos un dia que quedará grabado en sus corazones para siempre en sus vidas"
     }
   ],
   "gallery": [
@@ -90,7 +90,7 @@
     "costPerPerson": "70.000",
     "groom": {
       "name": "Bruno Lavayen",
-      "bankName": "Banco Ejemplo",
+      "bankName": "Naranja X",
       "cbu": "0000003100010000000000",
       "alias": "bruno.lavayen.boda",
       "icon": "🤵",
@@ -99,7 +99,7 @@
     },
     "bride": {
       "name": "Ivana Liebeskind",
-      "bankName": "Banco Ejemplo",
+      "bankName": "Mercado Pago",
       "cbu": "0000003100010000000001",
       "alias": "ivana.liebeskind.boda",
       "icon": "👰",
