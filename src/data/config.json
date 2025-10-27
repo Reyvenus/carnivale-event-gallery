@@ -11,8 +11,8 @@
       "foto": "/images/ivi.jpg",
       "panggilan": "Ivana",
       "nama": "Ivana Liebeskind",
-      "bapak": "Mari",
-      "ibu": "Luis"
+      "bapak": "Luis",
+      "ibu": "Mari"
     }
   },
   "audio_url": "/audio/wedding.mp3",
@@ -41,7 +41,7 @@
     {
       "image_url": "/images/4-lossuenossecumplen.jpg",
       "title": "Capitulo 4: Los sueños si se cumplen",
-      "description": "Con la ayuda de Dios y el esfuerzo del trabajo, emprendieron viajes que jamás imaginaron. México y Europa fueron solo el comienzo de sus aventuras, y aún quedan muchos destinos más por descubrir, mientras construyen juntos recuerdos que durarán toda la vida"
+      "description": "Con la ayuda de Dios y el esfuerzo del trabajo, emprendieron viajes que jamás imaginaron. Ésto fue solo el comienzo de sus aventuras, y aún quedan muchos más lugares por descubrir, mientras construyen juntos recuerdos que durarán toda la vida"
     },
     {
       "image_url": "/images/5-parasiempre.jpg",
@@ -86,12 +86,12 @@
     }
   },
   "gifts": {
-    "message": "Tu presencia es nuestro mayor regalo. Para celebrar este día especial juntos, el costo es de",
+    "message": "Tu presencia es nuestro mayor regalo. Para celebrar este día especial juntos, el valor de la Tarjeta es de",
     "costPerPerson": "70.000",
     "groom": {
       "name": "Bruno Lavayen",
       "bankName": "Naranja X",
-      "cbu": "0000003100010000000000",
+      "cbu": "4530000800016065177948",
       "alias": "bruno.lavayen.boda",
       "icon": "🤵",
       "whatsappNumber": "5493885130544",
