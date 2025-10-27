@@ -9,12 +9,9 @@ const AdminPanel = () => {
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Cambia esta contraseña por la que quieras usar
-  const ADMIN_PASSWORD = 'admin123'; // ⚠️ Cámbiala por una segura
-
   const handleLogin = (e) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
+    if (password === import.meta.env.VITE_APP_ADMIN_PASSWORD) {
       setIsAuthenticated(true);
       localStorage.setItem('adminAuth', 'true');
     } else {
