@@ -2,7 +2,7 @@ import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import supabase from '../../../lib/supabaseClient';
 
-const WishItem = forwardRef(({ name, message, color }, ref) => {
+const WishItem = forwardRef(({ name, message, color, createdAt }, ref) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showButton, setShowButton] = useState(false);
   const textRef = useRef(null);
@@ -15,6 +15,15 @@ const WishItem = forwardRef(({ name, message, color }, ref) => {
       setShowButton(lines > 3); // Mostrar botón si tiene más de 3 líneas
     }
   }, [message]);
+
+  const formatDate = (createdAt) => {
+    if (!createdAt) return '';
+    const date = new Date(createdAt);
+    return date.toLocaleString('es-ES', {
+      day: '2-digit',
+      month: 'short',
+    });
+  };
 
   return (
     <div ref={ref} className="p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
@@ -34,7 +43,14 @@ const WishItem = forwardRef(({ name, message, color }, ref) => {
           />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-white font-semibold text-sm mb-1">{name}</p>
+          <div className="flex items-baseline justify-between gap-2 mb-1">
+            <p className="text-white font-semibold text-sm">{name}</p>
+            {createdAt && (
+              <span className="text-white/40 text-[10px] flex-shrink-0">
+                {formatDate(createdAt)}
+              </span>
+            )}
+          </div>
           <div className="relative">
             <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? '' : 'max-h-[3.3rem]'}`}>
               <p 
@@ -148,7 +164,7 @@ export default function WishSection() {
   const fetchData = async () => {
     const { data: newData, error } = await supabase
       .from(import.meta.env.VITE_APP_TABLE_NAME) // Replace 'your_table' with the actual table name
-      .select('name, message, color')
+      .select('name, message, color, created_at')
       .eq('approved', true)
       .order('created_at', { ascending: false });
 
@@ -164,6 +180,11 @@ export default function WishSection() {
         console.log('🔔 Nuevos mensajes detectados! Antes:', previousCount, 'Ahora:', newCount);
         setShowNewMessages(true);
         setBannerKey(prev => prev + 1); // Cambiar key para forzar re-render
+        
+        // Auto-hide después de 5 segundos
+        setTimeout(() => {
+          setShowNewMessages(false);
+        }, 8000);
       }
       
       // Actualizar el ref con el nuevo conteo
@@ -232,27 +253,16 @@ export default function WishSection() {
               key={bannerKey}
               className="mb-4 bg-gradient-to-r from-blue-500/20 to-purple-600/20 border border-blue-400/30 rounded-lg p-3 animate-fade-in-up relative z-10"
             >
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 flex-1">
-                  <div className="flex-shrink-0 bg-blue-500/20 rounded-full p-1">
-                    <svg className="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                    </svg>
-                  </div>
-                  <div className="text-left flex-1">
-                    <p className="text-blue-200 font-semibold text-sm">🎉 ¡Nuevo mensaje!</p>
-                    <p className="text-blue-300/80 text-xs">Alguien mando un deseo para los novios!</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowNewMessages(false)}
-                  className="flex-shrink-0 text-blue-300/60 hover:text-blue-200 transition-colors p-1 hover:bg-blue-500/10 rounded"
-                  aria-label="Cerrar"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <div className="flex items-center gap-2">
+                <div className="flex-shrink-0 bg-blue-500/20 rounded-full p-1">
+                  <svg className="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                   </svg>
-                </button>
+                </div>
+                <div className="text-left flex-1">
+                  <p className="text-blue-200 font-semibold text-sm">🎉 ¡Nuevo mensaje!</p>
+                  <p className="text-blue-300/80 text-xs">Alguien mando un deseo para los novios!</p>
+                </div>
               </div>
             </div>
           )}
@@ -281,6 +291,7 @@ export default function WishSection() {
                   name={item.name}
                   message={item.message}
                   color={item.color}
+                  createdAt={item.created_at}
                   key={index}
                   ref={index === data.length - 1 ? lastChildRef : null}
                 />
