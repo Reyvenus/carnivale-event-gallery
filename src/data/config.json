@@ -1,14 +1,14 @@
 {
   "pegantin": {
     "pria": {
-      "foto": "https://slametandfatma.wedding/galeri/slamett.jpeg",
+      "foto": "/images/coco.jpg",
       "panggilan": "Bruno",
       "nama": "Bruno Lavayen",
       "bapak": "Nicasio",
       "ibu": "Cecilia"
     },
     "wanita": {
-      "foto": "https://slametandfatma.wedding/galeri/fatmaa.jpeg",
+      "foto": "/images/ivi.jpg",
       "panggilan": "Ivana",
       "nama": "Ivana Liebeskind",
       "bapak": "Mari",
@@ -17,26 +17,31 @@
   },
   "audio_url": "/audio/wedding.mp3",
   "tanggal_pernikahan": "24 de Enero 2026",
-  "thumbnail_image_url": "https://slametandfatma.wedding/galeri/nikahfix.jpg",
+  "thumbnail_image_url": "/images/cover.jpg",
   "url_video": "/video/wedding.mp4",
   "intro": "Después de que Coco e Ivi se conocieran en 2006, su amor ha crecido y florecido a lo largo de los años. Ahora están emocionados de compartir su historia de amor con ustedes antes de su gran día.",
   "breaking_news_img": "https://slametandfatma.wedding/galeri/news.jpg",
   "breaking_news_content": "<p>¡Hola queridos amigos y familiares! ✨</p><p className='mt-4'>Después de muchos años juntos, hemos decidido dar el gran paso y unir nuestras vidas en matrimonio. Queremos que sean parte de este momento tan especial para nosotros.</p><p className='mt-4'>La celebración comenzará con nuestra ceremonia religiosa, donde uniremos nuestras vidas ante Dios. Posteriormente, los invitamos a la recepción donde celebraremos nuestro casamiento civil, seguido de una gran fiesta para compartir juntos esta felicidad.</p><p className='mt-4'>Su presencia hará de este día un recuerdo inolvidable. ¡Los esperamos con mucho cariño!</p><p className='mt-4'>Con todo nuestro amor,</p><p>Coco e Ivi 💒❤️</p>",
   "love_story": [
     {
-      "image_url": "https://slametandfatma.wedding/galeri/story1.jpeg",
-      "title": "Episodio 1: Cómo nos conocimos",
-      "description": "Coco e Ivi se conocieron por primera vez en 2015 como compañeros de grupo durante la orientación de nuevos estudiantes en la Escuela de Formación Profesional."
+      "image_url": "/images/1-cuandonosconocimos.jpg",
+      "title": "Capitulo 1: Cuando nos conocimos",
+      "description": "En el 2006 con 14 y 16 años, se conocieron una noche en la que todo parecía casual, pero nada lo fue. Sus amigos, cómplices del destino, organizaron una fiesta improvisada sin imaginar que estaban dando inicio a una historia que marcaría sus vidas. Entre risas, música y la inocencia de aquel tiempo, sus miradas se cruzaron por primera vez. Desde ese instante, algo sutil pero poderoso empezó a crecer entre ellos, una conexión que ni el paso de los años lograría apagar"
     },
     {
-      "image_url": "https://slametandfatma.wedding/galeri/story2.jpg",
-      "title": "Episodio 2: Un amor que crece con el tiempo",
-      "description": "Después de un año de amistad, finalmente se dieron cuenta de que los sentimientos que tenían el uno por el otro no eran solo amistad."
+      "image_url": "/images/2-amoradolescente.jpg",
+      "title": "Capitulo 2: Un Amor adolescente",
+      "description": "Crecieron juntos, entre risas, errores y mil momentos compartidos. Entre el caos y la ternura de crecer, descubrieron que lo suyo no era un simple amor adolescente, sino algo real"
     },
     {
-      "image_url": "https://slametandfatma.wedding/galeri/story3.jpeg",
-      "title": "Episodio 3: Decidir pasar la vida juntos",
-      "description": "Después de más de 8 años de relación, en diciembre de 2024 Coco expresó su intención de pedirle matrimonio a Ivi."
+      "image_url": "/images/3-postpandemia.jpg",
+      "title": "Capitulo 3: Post-Pandemia, El inicio de una vida juntos",
+      "description": "Decidieron convivir juntos, acompañados por Elvis, su pequeño guardián de amor. Entre risas, desafíos y momentos compartidos, fueron aprendiendo uno del otro, descubriendo que su amor era verdadero.Poco a poco, sus sueños se entrelazaron, y juntos comenzaron a construir un futuro lleno de proyectos y aventuras"
+    },
+    {
+      "image_url": "/images/4-lossuenossecumplen.jpg",
+      "title": "Capitulo 4: Los sueños si se cumplen",
+      "description": "Con la ayuda de Dios y el esfuerzo del trabajo, emprendieron viajes que jamás imaginaron. México y Europa fueron solo el comienzo de sus aventuras, y aún quedan muchos destinos más por descubrir, mientras construyen juntos recuerdos que durarán toda la vida"
     },
     {
       "image_url": "https://slametandfatma.wedding/galeri/story4.jpeg",
@@ -68,7 +73,7 @@
       "time": "15:00 hrs",
       "address": "Capilla San Ignacio de Loyola, Av. Río de la Plata, Palpalá - Jujuy",
       "mapUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3637.5697379386284!2d-65.21722348882807!3d-24.25682298742042!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x941b076aa7cb8f01%3A0x73925b7198edab86!2sCapilla%20San%20Ignacio%20de%20Loyola!5e0!3m2!1ses-419!2sar!4v1761454848635!5m2!1ses-419!2sar",
-      "mapsLink": "https://maps.app.goo.gl/CMA4urZ4bbFhvDoA8",
+      "mapsLink": "https://maps.app.goo.gl/gnT9BL2YherCT6nv9",
       "icon": "⛪"
     },
     "reception": {
@@ -76,13 +81,13 @@
       "time": "18:00 hrs",
       "address": "Niza Eventos, RN 66 Palpalá - Jujuy",
       "mapUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3637.8108910966052!2d-65.23639248882826!3d-24.24839208710189!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x941b070ec3c93995%3A0xc8ca4ea6a79e7fec!2sNiza%20Eventos!5e0!3m2!1ses-419!2sar!4v1761455175484!5m2!1ses-419!2sar",
-      "mapsLink": "https://maps.app.goo.gl/CMA4urZ4bbFhvDoA8",
+      "mapsLink": "https://www.google.com/maps/place/Niza+Eventos/@-24.2483921,-65.2363925,17z/data=!3m1!4b1!4m6!3m5!1s0x941b070ec3c93995:0xc8ca4ea6a79e7fec!8m2!3d-24.248397!4d-65.2338122!16s%2Fg%2F1yj4k3rh8?entry=tts&g_ep=EgoyMDI1MTAyMi4wIPu8ASoASAFQAw%3D%3D",
       "icon": "🎉"
     }
   },
   "gifts": {
     "message": "Tu presencia es nuestro mayor regalo. Para celebrar este día especial juntos, el costo es de",
-    "costPerPerson": "75.000",
+    "costPerPerson": "70.000",
     "groom": {
       "name": "Bruno Lavayen",
       "bankName": "Banco Ejemplo",

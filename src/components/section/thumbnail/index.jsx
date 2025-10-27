@@ -25,6 +25,7 @@ export default function Thumbnail() {
     <div
       style={{
         backgroundImage: `url(${data.thumbnail_image_url})`,
+        marginTop: '-80px',
       }}
       className={`min-h-screen bg-cover bg-center bg-no-repeat flex flex-col justify-end mb-10 transition-all duration-300 ${
         isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'

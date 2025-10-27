@@ -7,7 +7,7 @@ export default function Footer() {
         <p className="text-white text-sm">
           ¡Gracias por ver haber llegado hasta aqui!
         </p>
-        <p className="text-white text-sm">¡No podemos esperar para verte de nuevo! 💫</p>
+        <p className="text-white text-sm">¡Esperamos contar con TU presencia! 💫</p>
       </div>
       <div className="mt-8 flex flex-col items-center">
         <p className="text-[10px] text-[#A3A1A1] mb-6">

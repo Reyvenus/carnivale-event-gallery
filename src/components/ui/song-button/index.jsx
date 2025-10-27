@@ -3,6 +3,15 @@ import data from '../../../data/config.json';
 
 export default function SongButton() {
   const [isPlaying, setIsPlaying] = React.useState(true);
+  const audioRef = React.useRef(null);
+
+  // Configurar el tiempo inicial del audio
+  React.useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 2; // Inicia desde el segundo 2
+    }
+  }, []);
+
   //stop the song when browser is closed or minimized
   React.useEffect(() => {
     const handleVisibilityChange = () => {
@@ -17,13 +26,25 @@ export default function SongButton() {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
+
+  // Controlar play/pause
+  React.useEffect(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.play().catch(err => console.log('Error playing audio:', err));
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [isPlaying]);
+
   return (
     // component to play and stop the song
     <div className="fixed bottom-5 right-5 z-50">
       <audio
-        autoPlay
+        ref={audioRef}
         loop
-        src={isPlaying ? data.audio_url : ''}
+        src={data.audio_url}
         className="hidden"
       />
       <button

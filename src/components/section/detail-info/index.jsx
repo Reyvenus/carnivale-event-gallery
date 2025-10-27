@@ -16,10 +16,21 @@ export default function DetailInfo() {
   return (
     <>
       <div className="space-y-5 pb-10">
-        <video className="w-full" autoPlay muted playsInline>
-          <source src={data.url_video} type="video/mp4" />
-          Su Navegador no soporta esta Reproduccion. Intente con otro.
-        </video>
+        {/* Video preview estilo Netflix */}
+        <div className="w-full bg-black py-4">
+          <div className="relative w-full px-4">
+            <video 
+              className="w-full h-auto max-h-[400px] object-contain rounded-lg shadow-2xl mx-auto" 
+              autoPlay 
+              muted 
+              playsInline
+              loop
+            >
+              <source src={data.url_video} type="video/mp4" />
+              Su Navegador no soporta esta Reproducción. Intente con otro.
+            </video>
+          </div>
+        </div>
         <div className="px-4 space-y-4">
           <TitleInfo />
           {data.show_menu.breaking_news && <BreakingNews />}
@@ -64,6 +75,9 @@ export default function DetailInfo() {
                   ${data.gifts.costPerPerson}
                 </span>
                 {' '}por persona.
+              </p>
+              <p className="text-xs text-white/70 px-4 mt-2 leading-relaxed">
+                💬 <span className="font-medium">Tip:</span> Podés hacerlo en 2 cuotas si te resulta más cómodo. Si tenés algún inconveniente, no dudes en escribirnos! 😊
               </p>
               <p className="text-xs text-white/60 px-4 italic">
                 💳 Puedes realizar la transferencia a cualquiera de las siguientes cuentas:
