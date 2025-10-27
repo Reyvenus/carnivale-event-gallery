@@ -13,18 +13,30 @@ import SongButton from '../../ui/song-button';
 import data from '../../../data/config.json';
 
 export default function DetailInfo() {
+  const [isVideoLoading, setIsVideoLoading] = React.useState(true);
+
   return (
     <>
       <div className="space-y-5 pb-10">
         {/* Video preview estilo Netflix */}
         <div className="w-full bg-black py-4">
           <div className="relative w-full px-4">
+            {/* Loading spinner estilo Netflix */}
+            {isVideoLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black rounded-lg z-10">
+                <div className="relative">
+                  <div className="w-12 h-12 border-4 border-gray-800 border-t-red-600 rounded-full animate-spin"></div>
+                </div>
+              </div>
+            )}
             <video 
               className="w-full h-auto max-h-[400px] object-contain rounded-lg shadow-2xl mx-auto" 
               autoPlay 
               muted 
               playsInline
               loop
+              onLoadedData={() => setIsVideoLoading(false)}
+              onCanPlay={() => setIsVideoLoading(false)}
             >
               <source src={data.url_video} type="video/mp4" />
               Su Navegador no soporta esta Reproducción. Intente con otro.
