@@ -8,7 +8,7 @@ export default function SongButton() {
   // Configurar el tiempo inicial del audio
   React.useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.currentTime = 2; // Inicia desde el segundo 2
+      audioRef.current.currentTime = 0.5; // Inicia desde el segundo 2
     }
   }, []);
 

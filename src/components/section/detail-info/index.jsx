@@ -9,6 +9,7 @@ import WishSection from '../wish';
 import Footer from '../footer';
 import LocationAccordion from '../location-accordion';
 import GiftAccordion from '../gift-accordion';
+import GoldenTicket from '../golden-ticket';
 import SongButton from '../../ui/song-button';
 import data from '../../../data/config.json';
 
@@ -114,6 +115,15 @@ export default function DetailInfo() {
               whatsappMessage={data.gifts.bride.whatsappMessage}
             />
           </div>
+
+          {/* Golden Ticket Button */}
+          <GoldenTicket 
+            guestName={`${data.pegantin.pria.panggilan} & ${data.pegantin.wanita.panggilan}`}
+            eventDate={data.tanggal_pernikahan.toUpperCase()}
+            eventTime={data.locations.reception.time}
+            eventLocation="NIZA EVENTOS"
+            eventAddress={data.locations.reception.address}
+          />
 
           {data.show_menu.wish && import.meta.env.VITE_APP_TABLE_NAME ? (
             <WishSection />
