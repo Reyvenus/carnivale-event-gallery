@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
 export default function UserWatch({ onClick }) {
-  //get params from url
   const [to, setTo] = useState('Invitado');
+  const audioRef = React.useRef(null);
 
   useEffect(() => {
     if (window) {
@@ -10,10 +10,19 @@ export default function UserWatch({ onClick }) {
       const to = url.searchParams.get('to');
       setTo(to ? to : 'Invitado');
     }
+
+    // Reproducir sonido automáticamente al cargar
+    if (audioRef.current) {
+      audioRef.current.play().catch(() => {
+        // Si falla, no hacer nada (el navegador bloqueó el autoplay)
+      });
+    }
   }, []);
 
   return (
-    <div className="py-10 text-center space-y-28">
+    <>
+      <audio ref={audioRef} src="/audio/netflix.mp3" preload="auto" />
+      <div className="py-10 text-center space-y-28">
       <img
         className="mx-auto w-64 sm:w-80 md:w-96 max-w-full px-4"
         src="images/bodafix.png"
@@ -35,5 +44,6 @@ export default function UserWatch({ onClick }) {
         </div>
       </div>
     </div>
+    </>
   );
 }
