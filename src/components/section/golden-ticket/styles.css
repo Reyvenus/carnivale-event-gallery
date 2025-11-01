@@ -148,7 +148,7 @@
 
 .golden-ticket {
   width: 340px;
-  height: 600px;
+  height: 60;
   position: relative;
   background: linear-gradient(
     180deg,
@@ -269,7 +269,7 @@
 .content {
   position: relative;
   z-index: 2;
-  padding: 40px 30px 55px 30px;
+  padding: 25px 25px 35px 25px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -284,7 +284,7 @@
   font-weight: 900;
   font-style: italic;
   color: #000;
-  margin: 0 0 -5px 0;
+  margin: 0 0 5px 0;
   text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.1);
 }
 
@@ -302,11 +302,11 @@
 
 .main-title {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 56px;
+  font-size: 46px;
   font-weight: 900;
-  letter-spacing: 4px;
+  letter-spacing: 3px;
   color: #000;
-  margin: 10px 0;
+  margin: 5px 0;
   line-height: 0.9;
   text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
 }
@@ -314,8 +314,8 @@
 .info-row {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  margin: 30px 0;
+  gap: 12px;
+  margin: 15px 0;
   padding: 0 10px;
 }
 
@@ -323,7 +323,7 @@
   flex: 1;
   text-align: center;
   border-bottom: 2px solid #8b7355;
-  padding-bottom: 15px;
+  padding-bottom: 10px;
 }
 
 .info-item:last-child {
@@ -333,17 +333,17 @@
 
 .info-label {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   letter-spacing: 2px;
   color: #000;
-  margin: 0 0 8px 0;
+  margin: 0 0 5px 0;
   font-weight: 400;
   text-transform: uppercase;
 }
 
 .info-value {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
+  font-size: 19px;
   font-weight: 700;
   color: #000;
   margin: 0;
@@ -353,13 +353,18 @@
 
 .guest-name {
   font-family: 'Playfair Display', serif;
-  font-size: 26px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 900;
   font-style: italic;
   color: #000;
-  margin: 10px 0 6px 0;
-  padding-bottom: 10px;
+  margin: 8px 0 6px 0;
+  padding: 8px 10px;
   border-bottom: 2px solid #8b7355;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 6px;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+  line-height: 1.2;
+  word-wrap: break-word;
 }
 
 .subtitle {
@@ -367,16 +372,19 @@
   font-size: 16px;
   letter-spacing: 3px;
   color: #000;
-  margin: 8px 0 10px 0;
-  padding: 6px 0;
+  margin: 6px 0 8px 0;
+  padding: 0;
+  font-weight: 700;
+  text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
 }
 
 .venue-details {
   font-family: 'Playfair Display', serif;
-  font-size: 14px;
+  font-size: 13px;
   color: #000;
   margin: 0;
   font-weight: 600;
+  line-height: 1.3;
 }
 
 /* Responsive */
@@ -386,8 +394,22 @@
     height: 530px;
   }
 
+  .content {
+    padding: 20px 20px 30px 20px;
+  }
+
+  .wonka-logo {
+    font-size: 20px;
+  }
+
+  .wonka-logo::before,
+  .wonka-logo::after {
+    font-size: 14px;
+  }
+
   .main-title {
-    font-size: 48px;
+    font-size: 40px;
+    letter-spacing: 2px;
   }
 
   .open-ticket-btn {
@@ -395,8 +417,85 @@
     padding: 16px 32px;
   }
 
+  .info-row {
+    gap: 10px;
+    margin: 12px 0;
+  }
+
+  .info-label {
+    font-size: 14px;
+  }
+
+  .info-value {
+    font-size: 17px;
+  }
+
   .guest-name {
-    font-size: 22px;
+    font-size: 20px;
+    padding: 6px 8px;
+    margin: 6px 0 5px 0;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    margin: 5px 0 6px 0;
+  }
+
+  .venue-details {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .golden-ticket {
+    width: 280px;
+    height: 500px;
+  }
+
+  .content {
+    padding: 18px 18px 28px 18px;
+  }
+
+  .wonka-logo {
+    font-size: 18px;
+  }
+
+  .wonka-logo::before,
+  .wonka-logo::after {
+    font-size: 13px;
+  }
+
+  .main-title {
+    font-size: 36px;
+    letter-spacing: 1px;
+  }
+
+  .info-row {
+    gap: 8px;
+    margin: 10px 0;
+  }
+
+  .info-label {
+    font-size: 13px;
+  }
+
+  .info-value {
+    font-size: 16px;
+  }
+
+  .guest-name {
+    font-size: 18px;
+    padding: 5px 8px;
+    margin: 5px 0 4px 0;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    margin: 4px 0 5px 0;
+  }
+
+  .venue-details {
+    font-size: 11px;
   }
 }
 

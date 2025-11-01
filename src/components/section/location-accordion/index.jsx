@@ -14,7 +14,7 @@ export default function LocationAccordion({ title, time, address, mapUrl, mapsLi
           <span className="text-2xl">{icon}</span>
           <div>
             <h3 className="text-lg font-bold text-white">{title}</h3>
-            <p className="text-sm text-white/70">{time}</p>
+            <p className="text-sm text-white/70">{time} (Inicia)</p>
           </div>
         </div>
         <svg

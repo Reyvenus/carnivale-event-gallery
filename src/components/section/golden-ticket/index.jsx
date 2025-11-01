@@ -147,10 +147,6 @@ export default function GoldenTicket({
             <p className="guest-name">{guestName}</p>
 
             <div className="subtitle">CELEBREMOS JUNTOS</div>
-
-            <p className="venue-details">
-              {eventAddress}
-            </p>
           </div>
         </div>
       </div>

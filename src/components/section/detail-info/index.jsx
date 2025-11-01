@@ -82,19 +82,32 @@ function DetailInfo({ guestData }) {
               <h2 className="text-xl font-bold text-white mb-2">
                 🎁 Regalos
               </h2>
-              <p className="text-sm text-white/80 leading-relaxed px-2">
-                {data.gifts.message}{' '}
-                <span className="font-semibold text-white text-lg">
-                  ${data.gifts.costPerPerson}
-                </span>
-                {' '}por persona.
-              </p>
-              <p className="text-xs text-white/70 px-4 mt-2 leading-relaxed">
-                💬 <span className="font-medium">Tip:</span> Podés hacerlo en 2 cuotas si te resulta más cómodo. Si tenés algún inconveniente, no dudes en escribirnos! 😊
-              </p>
-              <p className="text-xs text-white/60 px-4 italic">
-                💳 Puedes realizar la transferencia a cualquiera de las siguientes cuentas:
-              </p>
+              {guestData?.cost_per_person > 0 ? (
+                <>
+                  <p className="text-sm text-white/80 leading-relaxed px-2">
+                    {data.gifts.message}{' '}
+                    <span className="font-semibold text-white text-lg">
+                      ${guestData.cost_per_person}
+                    </span>
+                    {' '}por persona.
+                  </p>
+                  <p className="text-xs text-white/70 px-4 mt-2 leading-relaxed">
+                    💬 <span className="font-medium">Tip:</span> Podés hacerlo en 2 o 3 cuotas si te resulta más cómodo. Si tenés algún inconveniente, no dudes en escribirnos! 😊
+                  </p>
+                  <p className="text-xs text-white/60 px-4 italic">
+                    💳 Puedes realizar la transferencia a cualquiera de las siguientes cuentas:
+                  </p>
+                </>
+              ) : (
+                <div className="px-4 space-y-2">
+                  <p className="text-sm text-white/90 leading-relaxed">
+                    Si querés hacernos un regalito, te dejamos aquí nuestros datos bancarios 💝
+                  </p>
+                  <p className="text-xs text-white/70 leading-relaxed">
+                    ¡Cualquier monto que desees aportar será recibido con muchísimo cariño! 🎉
+                  </p>
+                </div>
+              )}
             </div>
             <GiftAccordion
               name={data.gifts.groom.name}
@@ -104,6 +117,7 @@ function DetailInfo({ guestData }) {
               icon={data.gifts.groom.icon}
               whatsappNumber={data.gifts.groom.whatsappNumber}
               whatsappMessage={data.gifts.groom.whatsappMessage}
+              costPerPerson={guestData?.cost_per_person}
             />
             <GiftAccordion
               name={data.gifts.bride.name}
@@ -113,13 +127,14 @@ function DetailInfo({ guestData }) {
               icon={data.gifts.bride.icon}
               whatsappNumber={data.gifts.bride.whatsappNumber}
               whatsappMessage={data.gifts.bride.whatsappMessage}
+              costPerPerson={guestData?.cost_per_person}
             />
           </div>
 
           {/* Golden Ticket Button */}
           <GoldenTicket 
             guestData={guestData}
-            guestName={`${data.pegantin.pria.panggilan} & ${data.pegantin.wanita.panggilan}`}
+            guestName={guestData?.nickname || "Invitado Especial"}
             eventDate={data.tanggal_pernikahan.toUpperCase()}
             eventTime={data.locations.reception.time}
             eventLocation="NIZA EVENTOS"

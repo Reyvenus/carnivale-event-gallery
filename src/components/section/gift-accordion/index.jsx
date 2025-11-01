@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 
-export default function GiftAccordion({ name, bankName, cbu, alias, icon = '💳', whatsappNumber, whatsappMessage }) {
+export default function GiftAccordion({ name, bankName, cbu, alias, icon = '💳', whatsappNumber, whatsappMessage, costPerPerson = 0 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [copiedField, setCopiedField] = useState(null);
   const [isLoadingWhatsapp, setIsLoadingWhatsapp] = useState(false);
@@ -228,3 +229,14 @@ export default function GiftAccordion({ name, bankName, cbu, alias, icon = '💳
     </div>
   );
 }
+
+GiftAccordion.propTypes = {
+  name: PropTypes.string.isRequired,
+  bankName: PropTypes.string.isRequired,
+  cbu: PropTypes.string.isRequired,
+  alias: PropTypes.string,
+  icon: PropTypes.string,
+  whatsappNumber: PropTypes.string,
+  whatsappMessage: PropTypes.string,
+  costPerPerson: PropTypes.number
+};

@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import PropTypes from 'prop-types';
 import supabase from '../lib/supabaseClient';
 
 const AdminPanel = () => {
@@ -14,6 +16,8 @@ const AdminPanel = () => {
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'cards'
   const [searchTerm, setSearchTerm] = useState('');
   const [filterConfirmed, setFilterConfirmed] = useState('all'); // 'all', 'confirmed', 'pending'
+  const [copiedGuestId, setCopiedGuestId] = useState(null); // Para el efecto de copiado
+  const [showCopyToast, setShowCopyToast] = useState(false); // Para mostrar el toast
   const [guestForm, setGuestForm] = useState({
     first_name: '',
     last_name: '',
@@ -163,6 +167,51 @@ const AdminPanel = () => {
       num_companions: 0,
       notes: ''
     });
+  };
+
+  const handleCopyLink = (guestCode, guestId) => {
+    console.log('handleCopyLink llamado con:', guestCode, guestId);
+    const url = `${window.location.origin}?code=${encodeURIComponent(guestCode)}`;
+    console.log('URL a copiar:', url);
+    
+    // Intentar copiar al clipboard
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => {
+        console.log('Copiado exitosamente');
+        setCopiedGuestId(guestId);
+        setShowCopyToast(true);
+        setTimeout(() => {
+          setCopiedGuestId(null);
+          setShowCopyToast(false);
+        }, 2000);
+      }).catch(err => {
+        console.error('Error al copiar:', err);
+        alert('❌ Error al copiar el enlace. URL: ' + url);
+      });
+    } else {
+      // Fallback para navegadores que no soportan clipboard API
+      console.log('Clipboard API no disponible, usando fallback');
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        console.log('Copiado con fallback');
+        setCopiedGuestId(guestId);
+        setShowCopyToast(true);
+        setTimeout(() => {
+          setCopiedGuestId(null);
+          setShowCopyToast(false);
+        }, 2000);
+      } catch (err) {
+        console.error('Error en fallback:', err);
+        alert('❌ No se pudo copiar. URL: ' + url);
+      }
+      document.body.removeChild(textArea);
+    }
   };
 
   // Filtrar y buscar invitados
@@ -447,131 +496,7 @@ const AdminPanel = () => {
                   )}
                 </div>
 
-                {/* Guest Form */}
-                {showGuestForm && (
-                  <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 mb-4">
-                    <h3 className="text-xl font-bold text-white mb-4">
-                      {editingGuest ? '✏️ Editar Invitado' : '➕ Nuevo Invitado'}
-                    </h3>
-                    <form onSubmit={handleSaveGuest} className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-white/90 text-sm font-medium block mb-2">
-                            Nombre *
-                          </label>
-                          <input
-                            type="text"
-                            value={guestForm.first_name}
-                            onChange={(e) => setGuestForm({...guestForm, first_name: e.target.value})}
-                            className="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label className="text-white/90 text-sm font-medium block mb-2">
-                            Apellido *
-                          </label>
-                          <input
-                            type="text"
-                            value={guestForm.last_name}
-                            onChange={(e) => setGuestForm({...guestForm, last_name: e.target.value})}
-                            className="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label className="text-white/90 text-sm font-medium block mb-2">
-                            Nickname
-                          </label>
-                          <input
-                            type="text"
-                            value={guestForm.nickname}
-                            onChange={(e) => setGuestForm({...guestForm, nickname: e.target.value})}
-                            className="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-white/90 text-sm font-medium block mb-2">
-                            Código Invitado *
-                          </label>
-                          <input
-                            type="text"
-                            value={guestForm.guest_code}
-                            onChange={(e) => setGuestForm({...guestForm, guest_code: e.target.value.toUpperCase()})}
-                            placeholder="INV001"
-                            className="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label className="text-white/90 text-sm font-medium block mb-2">
-                            Costo por Persona (ARS)
-                          </label>
-                          <input
-                            type="number"
-                            value={guestForm.cost_per_person}
-                            onChange={(e) => setGuestForm({...guestForm, cost_per_person: parseFloat(e.target.value)})}
-                            className="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-white/90 text-sm font-medium block mb-2">
-                            Nº Acompañantes
-                          </label>
-                          <input
-                            type="number"
-                            min="0"
-                            value={guestForm.num_companions}
-                            onChange={(e) => setGuestForm({...guestForm, num_companions: parseInt(e.target.value)})}
-                            className="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-white/90 text-sm font-medium block mb-2">
-                          Notas
-                        </label>
-                        <textarea
-                          value={guestForm.notes}
-                          onChange={(e) => setGuestForm({...guestForm, notes: e.target.value})}
-                          rows="3"
-                          className="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
-                        />
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          id="confirmado"
-                          checked={guestForm.confirmed}
-                          onChange={(e) => setGuestForm({...guestForm, confirmed: e.target.checked})}
-                          className="w-5 h-5 rounded"
-                        />
-                        <label htmlFor="confirmado" className="text-white/90 text-sm font-medium">
-                          ✅ Confirmado
-                        </label>
-                      </div>
-                      <div className="flex gap-3">
-                        <button
-                          type="submit"
-                          className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all font-semibold"
-                        >
-                          {editingGuest ? '💾 Guardar Cambios' : '➕ Agregar Invitado'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowGuestForm(false);
-                            setEditingGuest(null);
-                            resetGuestForm();
-                          }}
-                          className="px-6 py-3 bg-gray-500/20 text-white rounded-lg hover:bg-gray-500/30 transition-all font-semibold"
-                        >
-                          Cancelar
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                )}
+
 
                 {/* Guest Stats */}
                 <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20 mb-4">
@@ -715,15 +640,15 @@ const AdminPanel = () => {
                                       ✏️
                                     </button>
                                     <button
-                                      onClick={() => {
-                                        const url = `${window.location.origin}?code=${encodeURIComponent(guest.guest_code)}`;
-                                        navigator.clipboard.writeText(url);
-                                        alert('✅ URL copiada!');
-                                      }}
-                                      className="p-2 bg-purple-500/20 text-purple-200 rounded-lg hover:bg-purple-500/30 transition-all"
-                                      title="Copiar Link"
+                                      onClick={() => handleCopyLink(guest.guest_code, guest.id)}
+                                      className={`p-2 rounded-lg transition-all relative ${
+                                        copiedGuestId === guest.id
+                                          ? 'bg-green-500/30 text-green-200'
+                                          : 'bg-purple-500/20 text-purple-200 hover:bg-purple-500/30'
+                                      }`}
+                                      title={copiedGuestId === guest.id ? '¡Copiado!' : 'Copiar Link'}
                                     >
-                                      🔗
+                                      {copiedGuestId === guest.id ? '✅' : '🔗'}
                                     </button>
                                     <button
                                       onClick={() => handleDeleteGuest(guest.id)}
@@ -750,6 +675,8 @@ const AdminPanel = () => {
                         guest={guest}
                         onEdit={handleEditGuest}
                         onDelete={handleDeleteGuest}
+                        onCopyLink={handleCopyLink}
+                        isCopied={copiedGuestId === guest.id}
                       />
                     ))}
                   </div>
@@ -811,11 +738,224 @@ const AdminPanel = () => {
           </div>
         )}
       </div>
+
+      {/* Toast de copiado usando createPortal */}
+      {showCopyToast && createPortal(
+        <div className="fixed top-4 right-4 z-[9999] pointer-events-none">
+          <div 
+            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-4 rounded-xl shadow-2xl pointer-events-auto"
+            style={{
+              animation: 'slideInRight 0.3s ease-out'
+            }}
+          >
+            <style>{`
+              @keyframes slideInRight {
+                from {
+                  transform: translateX(400px);
+                  opacity: 0;
+                }
+                to {
+                  transform: translateX(0);
+                  opacity: 1;
+                }
+              }
+            `}</style>
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 rounded-full p-2 flex-shrink-0">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-bold text-base leading-tight">¡Enlace copiado!</p>
+                <p className="text-xs text-white/90 mt-0.5">URL en el portapapeles</p>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Guest Form Modal */}
+      {showGuestForm && createPortal(
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowGuestForm(false);
+              setEditingGuest(null);
+              resetGuestForm();
+            }
+          }}
+          style={{ animation: 'fadeIn 0.2s ease-out' }}
+        >
+          <style>{`
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            @keyframes slideUp {
+              from {
+                transform: translateY(20px);
+                opacity: 0;
+              }
+              to {
+                transform: translateY(0);
+                opacity: 1;
+              }
+            }
+          `}</style>
+          <div 
+            className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-2xl p-8 border border-white/20 w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl"
+            style={{ animation: 'slideUp 0.3s ease-out' }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-white">
+                {editingGuest ? '✏️ Editar Invitado' : '➕ Nuevo Invitado'}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowGuestForm(false);
+                  setEditingGuest(null);
+                  resetGuestForm();
+                }}
+                className="p-2 hover:bg-white/10 rounded-lg transition-all text-white/60 hover:text-white"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <form onSubmit={handleSaveGuest} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-white/90 text-sm font-medium block mb-2">
+                    Nombre *
+                  </label>
+                  <input
+                    type="text"
+                    value={guestForm.first_name}
+                    onChange={(e) => setGuestForm({...guestForm, first_name: e.target.value})}
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-white/90 text-sm font-medium block mb-2">
+                    Apellido *
+                  </label>
+                  <input
+                    type="text"
+                    value={guestForm.last_name}
+                    onChange={(e) => setGuestForm({...guestForm, last_name: e.target.value})}
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-white/90 text-sm font-medium block mb-2">
+                    Nickname
+                  </label>
+                  <input
+                    type="text"
+                    value={guestForm.nickname}
+                    onChange={(e) => setGuestForm({...guestForm, nickname: e.target.value})}
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-white/90 text-sm font-medium block mb-2">
+                    Código Invitado *
+                  </label>
+                  <input
+                    type="text"
+                    value={guestForm.guest_code}
+                    onChange={(e) => setGuestForm({...guestForm, guest_code: e.target.value.toUpperCase()})}
+                    placeholder="INV001"
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-white/90 text-sm font-medium block mb-2">
+                    Costo por Persona (ARS)
+                  </label>
+                  <input
+                    type="number"
+                    value={guestForm.cost_per_person}
+                    onChange={(e) => setGuestForm({...guestForm, cost_per_person: parseFloat(e.target.value)})}
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-white/90 text-sm font-medium block mb-2">
+                    Nº Acompañantes
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={guestForm.num_companions}
+                    onChange={(e) => setGuestForm({...guestForm, num_companions: parseInt(e.target.value)})}
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-white/90 text-sm font-medium block mb-2">
+                  Notas
+                </label>
+                <textarea
+                  value={guestForm.notes}
+                  onChange={(e) => setGuestForm({...guestForm, notes: e.target.value})}
+                  rows="3"
+                  className="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                />
+              </div>
+              
+              <div className="flex items-center gap-3 p-4 bg-white/5 rounded-lg">
+                <input
+                  type="checkbox"
+                  id="confirmado"
+                  checked={guestForm.confirmed}
+                  onChange={(e) => setGuestForm({...guestForm, confirmed: e.target.checked})}
+                  className="w-5 h-5 rounded accent-green-500"
+                />
+                <label htmlFor="confirmado" className="text-white/90 text-sm font-medium cursor-pointer">
+                  ✅ Confirmado
+                </label>
+              </div>
+              
+              <div className="flex gap-3 pt-4 border-t border-white/10">
+                <button
+                  type="submit"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all font-semibold shadow-lg"
+                >
+                  {editingGuest ? '💾 Guardar Cambios' : '➕ Agregar Invitado'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowGuestForm(false);
+                    setEditingGuest(null);
+                    resetGuestForm();
+                  }}
+                  className="px-6 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all font-semibold"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
 
-const GuestCard = ({ guest, onEdit, onDelete }) => {
+const GuestCard = ({ guest, onEdit, onDelete, onCopyLink, isCopied }) => {
   const formatDate = (dateString) => {
     if (!dateString) return 'Sin fecha';
     const date = new Date(dateString);
@@ -911,20 +1051,39 @@ const GuestCard = ({ guest, onEdit, onDelete }) => {
               🗑️ Eliminar
             </button>
             <button
-              onClick={() => {
-                const url = `${window.location.origin}?code=${encodeURIComponent(guest.guest_code)}`;
-                navigator.clipboard.writeText(url);
-                alert('✅ URL de invitación copiada al portapapeles!');
-              }}
-              className="px-4 py-2 bg-purple-500/20 text-purple-200 rounded-lg hover:bg-purple-500/30 transition-all text-sm font-medium"
+              onClick={() => onCopyLink(guest.guest_code, guest.id)}
+              className={`px-4 py-2 rounded-lg transition-all text-sm font-medium ${
+                isCopied
+                  ? 'bg-green-500/30 text-green-200'
+                  : 'bg-purple-500/20 text-purple-200 hover:bg-purple-500/30'
+              }`}
             >
-              🔗 Copiar Link
+              {isCopied ? '✅ ¡Copiado!' : '🔗 Copiar Link'}
             </button>
           </div>
         </div>
       </div>
     </div>
   );
+};
+
+GuestCard.propTypes = {
+  guest: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    first_name: PropTypes.string.isRequired,
+    last_name: PropTypes.string.isRequired,
+    nickname: PropTypes.string,
+    guest_code: PropTypes.string.isRequired,
+    cost_per_person: PropTypes.number,
+    confirmed: PropTypes.bool,
+    num_companions: PropTypes.number,
+    notes: PropTypes.string,
+    created_at: PropTypes.string,
+  }).isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onCopyLink: PropTypes.func.isRequired,
+  isCopied: PropTypes.bool.isRequired,
 };
 
 const MessageCard = ({ message, onApprove, onDelete, onUnapprove, isPending }) => {
@@ -1011,6 +1170,20 @@ const MessageCard = ({ message, onApprove, onDelete, onUnapprove, isPending }) =
       </div>
     </div>
   );
+};
+
+MessageCard.propTypes = {
+  message: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    message: PropTypes.string.isRequired,
+    color: PropTypes.string,
+    created_at: PropTypes.string,
+  }).isRequired,
+  onApprove: PropTypes.func,
+  onDelete: PropTypes.func.isRequired,
+  onUnapprove: PropTypes.func,
+  isPending: PropTypes.bool.isRequired,
 };
 
 export default AdminPanel;
