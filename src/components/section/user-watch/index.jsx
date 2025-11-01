@@ -1,17 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './userwatch.css';
 
-export default function UserWatch({ onClick }) {
-  const [to, setTo] = useState('Invitado');
+export default function UserWatch({ onClick, guestData }) {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  useEffect(() => {
-    if (window) {
-      const url = new URL(window.location.href);
-      const to = url.searchParams.get('to');
-      setTo(to ? to : 'Invitado');
-    }
-  }, []);
+  // Obtener el nombre del invitado desde guestData
+  const guestName = guestData 
+    ? (guestData.nickname || `${guestData.first_name} ${guestData.last_name}`)
+    : 'Invitado';
 
   const handleClick = () => {
     // Reproducir el sonido
@@ -57,7 +53,7 @@ export default function UserWatch({ onClick }) {
             alt="boda-ivi-coco"
           />
           <p className="text-xl mt-2 group-hover:scale-125 group-hover:pt-5 transition-all duration-300">
-            {to}
+            {guestName}
           </p>
         </div>
       </div>

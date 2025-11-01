@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import DetailInfo from '../detail-info';
 import data from '../../../data/config.json';
 
@@ -10,14 +11,18 @@ const TagItem = ({ title }) => {
   );
 };
 
-export default function Thumbnail() {
+TagItem.propTypes = {
+  title: PropTypes.string.isRequired
+};
+
+function Thumbnail({ guestData }) {
   const [isOpenDetail, setIsOpenDetail] = React.useState(false);
   const [isAnimating, setIsAnimating] = React.useState(false);
 
   if (isOpenDetail) {
     return (
-      <div className="animate-fade-in-up">
-        <DetailInfo />
+      <div className="animate-fade-in">
+        <DetailInfo guestData={guestData} />
       </div>
     );
   }
@@ -103,3 +108,9 @@ export default function Thumbnail() {
     </div>
   );
 }
+
+Thumbnail.propTypes = {
+  guestData: PropTypes.object
+};
+
+export default Thumbnail;

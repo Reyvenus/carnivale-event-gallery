@@ -21,12 +21,13 @@
   cursor: pointer;
   box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
   transition: all 0.3s ease;
+  animation: pulse-glow 1.5s ease-in-out infinite;
 }
 
 .open-ticket-btn:hover {
   transform: translateY(-5px);
   box-shadow: 0 15px 40px rgba(212, 175, 55, 0.6);
-  animation: pulse-glow 1.5s ease-in-out infinite;
+  animation: pulse-glow 1s ease-in-out infinite;
 }
 
 .open-ticket-btn:active {

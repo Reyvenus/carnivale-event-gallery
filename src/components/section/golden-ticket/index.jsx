@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import './styles.css';
 
 export default function GoldenTicket({ 
+  guestData,
   guestName,
   eventDate,
   eventTime,
@@ -12,9 +13,12 @@ export default function GoldenTicket({
   eventAddress
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const canvasRef = useRef(null);
   const confettiIntervalRef = useRef(null);
   const myConfettiRef = useRef(null);
+  
+  const isConfirmed = guestData?.confirmed || false;
 
   const stopConfetti = useCallback(() => {
     if (confettiIntervalRef.current) {
@@ -80,6 +84,12 @@ export default function GoldenTicket({
   }, [isModalOpen, startContinuousConfetti, stopConfetti]);
 
   const openModal = () => {
+    if (!isConfirmed) {
+      // Mostrar toast si no está confirmado
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 4000);
+      return;
+    }
     setIsModalOpen(true);
   };
 
@@ -149,7 +159,27 @@ export default function GoldenTicket({
 
   return (
     <>
-      {/* Botón para abrir el ticket */}
+      {/* Toast cuando el ticket no está disponible */}
+      {showToast && createPortal(
+        <div className="fixed top-0 left-0 right-0 z-[9999] animate-fade-in-up">
+          <div className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-4 py-4 shadow-2xl">
+            <div className="max-w-sm mx-auto flex items-center justify-center gap-3">
+              <div className="flex-shrink-0 bg-white/20 rounded-full p-1">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <div className="flex-1 text-center">
+                <p className="font-semibold text-base">¡Tu ticket está en camino! 🎫✨</p>
+                <p className="text-xs text-white/90 mt-0.5">Pronto estará disponible para ti</p>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Botón para abrir el ticket - Siempre visible */}
       <div className="golden-ticket-container">
         <button className="open-ticket-btn" onClick={openModal}>
           VER MI GOLDEN TICKET
@@ -163,6 +193,7 @@ export default function GoldenTicket({
 }
 
 GoldenTicket.propTypes = {
+  guestData: PropTypes.object,
   guestName: PropTypes.string,
   eventDate: PropTypes.string,
   eventTime: PropTypes.string,
@@ -171,6 +202,7 @@ GoldenTicket.propTypes = {
 };
 
 GoldenTicket.defaultProps = {
+  guestData: null,
   guestName: "María & Juan García",
   eventDate: "24 DE ENERO, 2026",
   eventTime: "4:00 PM",

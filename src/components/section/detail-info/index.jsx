@@ -1,10 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { createPortal } from 'react-dom';
 import TitleInfo from '../title-info';
 import BreakingNews from '../breaking-news';
 import Bridegroom from '../bride-groom';
 import LoveStory from '../love-story';
-import OurGallery from '../our-gallery';
 import WishSection from '../wish';
 import Footer from '../footer';
 import LocationAccordion from '../location-accordion';
@@ -13,7 +13,7 @@ import GoldenTicket from '../golden-ticket';
 import SongButton from '../../ui/song-button';
 import data from '../../../data/config.json';
 
-export default function DetailInfo() {
+function DetailInfo({ guestData }) {
   const [isVideoLoading, setIsVideoLoading] = React.useState(true);
 
   return (
@@ -118,6 +118,7 @@ export default function DetailInfo() {
 
           {/* Golden Ticket Button */}
           <GoldenTicket 
+            guestData={guestData}
             guestName={`${data.pegantin.pria.panggilan} & ${data.pegantin.wanita.panggilan}`}
             eventDate={data.tanggal_pernikahan.toUpperCase()}
             eventTime={data.locations.reception.time}
@@ -135,3 +136,9 @@ export default function DetailInfo() {
     </>
   );
 }
+
+DetailInfo.propTypes = {
+  guestData: PropTypes.object
+};
+
+export default DetailInfo;
