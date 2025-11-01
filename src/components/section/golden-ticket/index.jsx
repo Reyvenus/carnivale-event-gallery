@@ -19,6 +19,7 @@ export default function GoldenTicket({
   const myConfettiRef = useRef(null);
   
   const isConfirmed = guestData?.confirmed || false;
+  const hasCost = guestData?.cost_per_person && guestData.cost_per_person > 0;
 
   const stopConfetti = useCallback(() => {
     if (confettiIntervalRef.current) {
@@ -84,8 +85,8 @@ export default function GoldenTicket({
   }, [isModalOpen, startContinuousConfetti, stopConfetti]);
 
   const openModal = () => {
-    if (!isConfirmed) {
-      // Mostrar toast si no está confirmado
+    // Si tiene costo mayor a 0 y NO está confirmado, mostrar toast
+    if (hasCost && !isConfirmed) {
       setShowToast(true);
       setTimeout(() => setShowToast(false), 4000);
       return;
