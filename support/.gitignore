@@ -1,0 +1,27 @@
+# Environment variables
+.env
+
+# Excel files
+*.xlsx
+*.xls
+!invitados_ejemplo.xlsx
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
