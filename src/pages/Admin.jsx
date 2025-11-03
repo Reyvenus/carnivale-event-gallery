@@ -127,6 +127,28 @@ const AdminPanel = () => {
     }
   }, [fetchAllGuestPayments]);
 
+  const generateGuestCode = (firstName, lastName) => {
+    // Obtener las 2 primeras letras del nombre en mayúsculas
+    const prefix = firstName.substring(0, 2).toUpperCase();
+    
+    // Crear un string con el nombre completo
+    const fullName = `${firstName} ${lastName}`.toLowerCase();
+    
+    // Generar un hash simple pero único basado en el nombre completo y timestamp
+    let hash = 0;
+    const str = fullName + Date.now();
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    
+    // Convertir a hexadecimal y tomar 10 caracteres
+    const hexHash = Math.abs(hash).toString(16).toUpperCase().padStart(10, '0').substring(0, 10);
+    
+    return `${prefix}-${hexHash}`;
+  };
+
   const handleSaveGuest = async (e) => {
     e.preventDefault();
     
@@ -147,10 +169,16 @@ const AdminPanel = () => {
         alert('❌ Error al actualizar: ' + error.message);
       }
     } else {
-      // Crear nuevo invitado
+      // Crear nuevo invitado - generar guest_code automáticamente
+      const guestCode = generateGuestCode(guestForm.first_name, guestForm.last_name);
+      const newGuest = {
+        ...guestForm,
+        guest_code: guestCode
+      };
+      
       const { error } = await supabase
         .from(import.meta.env.VITE_GUESTS_TABLE_NAME)
-        .insert([guestForm]);
+        .insert([newGuest]);
 
       if (!error) {
         alert('✅ Invitado agregado correctamente');
@@ -180,8 +208,6 @@ const AdminPanel = () => {
   };
 
   const handleDeleteGuest = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar este invitado?')) return;
-
     const { error } = await supabase
       .from(import.meta.env.VITE_GUESTS_TABLE_NAME)
       .delete()
@@ -688,7 +714,7 @@ const AdminPanel = () => {
                                       {guest.first_name} {guest.last_name}
                                     </div>
                                     {guest.nickname && (
-                                      <div className="text-white/60" style={{ fontSize: '10px' }}>
+                                      <div className="text-white/60" style={{ fontSize: '12px' }}>
                                         ({guest.nickname})
                                       </div>
                                     )}
@@ -1211,15 +1237,16 @@ const AdminPanel = () => {
                 </div>
                 <div>
                   <label className="text-white/90 text-sm font-medium block mb-2">
-                    Código Invitado *
+                    Código Invitado {!editingGuest && '(Se genera automáticamente)'}
                   </label>
                   <input
                     type="text"
-                    value={guestForm.guest_code}
+                    value={editingGuest ? guestForm.guest_code : 'Se generará al guardar'}
                     onChange={(e) => setGuestForm({...guestForm, guest_code: e.target.value.toUpperCase()})}
-                    placeholder="INV001"
-                    className="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    required
+                    placeholder={editingGuest ? "Código del invitado" : "Se generará automáticamente"}
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 text-white/70 placeholder-white/50 border border-white/30 focus:outline-none cursor-not-allowed"
+                    readOnly
+                    disabled
                   />
                 </div>
                 <div>
@@ -1286,12 +1313,13 @@ const AdminPanel = () => {
                 </label>
               </div>
               
-              <div className="flex gap-3 pt-4 border-t border-white/10">
+              <div className="flex gap-2 pt-4 border-t border-white/10">
                 <button
                   type="submit"
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 active:scale-95 transition-all font-semibold shadow-lg"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 active:scale-95 transition-all font-semibold shadow-lg text-sm"
+                  title={editingGuest ? 'Guardar cambios' : 'Agregar invitado'}
                 >
-                  {editingGuest ? '💾 Guardar Cambios' : '➕ Agregar Invitado'}
+                  {editingGuest ? '💾 Guardar' : '➕ Agregar'}
                 </button>
                 {editingGuest && (
                   <button
@@ -1304,7 +1332,7 @@ const AdminPanel = () => {
                         resetGuestForm();
                       }
                     }}
-                    className="px-6 py-3 bg-red-500/20 text-red-200 rounded-lg hover:bg-red-500/30 active:scale-95 transition-all font-semibold"
+                    className="px-4 py-3 bg-red-500/20 text-red-200 rounded-lg hover:bg-red-500/30 active:scale-95 transition-all font-semibold text-xl"
                     title="Eliminar invitado"
                   >
                     🗑️
@@ -1317,9 +1345,10 @@ const AdminPanel = () => {
                     setEditingGuest(null);
                     resetGuestForm();
                   }}
-                  className="px-6 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 active:scale-95 transition-all font-semibold"
+                  className="px-4 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 active:scale-95 transition-all font-semibold text-xl"
+                  title="Cerrar"
                 >
-                  Cancelar
+                  ✕
                 </button>
               </div>
             </form>
