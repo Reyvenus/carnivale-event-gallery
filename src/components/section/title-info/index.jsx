@@ -37,9 +37,9 @@ export default function TitleInfo() {
         <p className="text-white text-sm leading-[1.15rem] mb-2">
           {data.intro}
         </p>
-        <p className="text-[#A3A1A1] text-[10px] leading-[1rem]">
+        {/* <p className="text-[#A3A1A1] text-[10px] leading-[1rem]">
           "Aqui puede ir alguna frase reflexiva que deseemos poner o algun comentario" (Algun comentario 2)
-        </p>
+        </p> */}
       </div>
     </div>
   );

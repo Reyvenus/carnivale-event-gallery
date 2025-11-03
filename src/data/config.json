@@ -19,7 +19,7 @@
   "tanggal_pernikahan": "24 de Enero 2026",
   "thumbnail_image_url": "/images/cover.jpg",
   "url_video": "/video/wedding.mp4",
-  "intro": "Después de que Coco e Ivi se conocieran en 2006, su amor ha crecido y florecido a lo largo de los años. Ahora están emocionados de compartir su historia de amor con ustedes antes de su gran día.",
+  "intro": "Después de que Coco e Ivi se conocieran en 2006, su amor ha crecido a lo largo de los años. Ahora están emocionados de compartir su historia de amor con ustedes antes de su gran día.",
   "breaking_news_img": "https://slametandfatma.wedding/galeri/news.jpg",
   "breaking_news_content": "<p>¡Hola queridos amigos y familiares! ✨</p><p className='mt-4'>Después de muchos años juntos, hemos decidido dar el gran paso y unir nuestras vidas en matrimonio. Queremos que sean parte de este momento tan especial para nosotros.</p><p className='mt-4'>La celebración comenzará con nuestra ceremonia religiosa, donde uniremos nuestras vidas ante Dios. Posteriormente, los invitamos a la recepción donde celebraremos nuestro casamiento civil, seguido de una gran fiesta para compartir juntos esta felicidad.</p><p className='mt-4'>Su presencia hará de este día un recuerdo inolvidable. ¡Los esperamos con mucho cariño!</p><p className='mt-4'>Con todo nuestro amor,</p><p>Coco e Ivi 💒❤️</p>",
   "love_story": [
@@ -45,7 +45,7 @@
     },
     {
       "image_url": "/images/5-parasiempre.jpg",
-      "title": "[Próximamente] Episodio final: El comienzo del para siempre",
+      "title": "[Próximamente] Capitulo final: El comienzo del para siempre",
       "description": "Decidieron afirmar su AMOR antes Dios, celebrando junto a sus seres queridos un dia que quedará grabado en sus corazones para siempre en sus vidas"
     }
   ],
