@@ -930,7 +930,7 @@ const AdminPanel = () => {
                                     </div>
                                     {/* Personas */}
                                     <div className="text-white/80 text-xs">
-                                      {totalPersonas}p
+                                      👤 {totalPersonas}
                                     </div>
                                     {/* Costo Total */}
                                     <div className="text-green-400 text-xs font-semibold whitespace-nowrap">
