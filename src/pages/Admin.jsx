@@ -23,6 +23,7 @@ const AdminPanel = () => {
   const [guestPayments, setGuestPayments] = useState([]);
   const [allGuestPayments, setAllGuestPayments] = useState({}); // Objeto con { guest_id: total_pagado }
   const [showAddPayment, setShowAddPayment] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [paymentForm, setPaymentForm] = useState({
     amount: '',
     payment_date: new Date().toISOString().split('T')[0],
@@ -449,72 +450,130 @@ const AdminPanel = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-4">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-6 border border-white/20">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2">
-                📋 Panel de Administración
-              </h1>
-              <p className="text-white/60 text-sm">
-                Gestiona los mensajes de tu boda
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => {
-                  fetchMessages(false);
-                  fetchGuests(false);
-                }}
-                className="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-all text-sm font-medium"
-              >
-                🔄 Actualizar
-              </button>
-              <button
-                onClick={() => {
-                  localStorage.removeItem('adminAuth');
-                  setIsAuthenticated(false);
-                }}
-                className="px-4 py-2 bg-red-500/20 text-red-200 rounded-lg hover:bg-red-500/30 transition-all text-sm font-medium"
-              >
-                🚪 Cerrar Sesión
-              </button>
-            </div>
+        {/* Header - Title and User Menu in one row */}
+        <div className="px-6 py-4 mb-6 flex items-center justify-between">
+          <h1 className="text-xl font-bold text-white flex items-center gap-2">
+            💍 Panel de Administración
+          </h1>
+
+          {/* User Menu */}
+          <div className="relative">
+            <button
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="p-2.5 bg-white/10 backdrop-blur-lg text-white rounded-full hover:bg-white/20 transition-all border border-white/20 shadow-lg"
+              title="Menú de usuario"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </button>
+
+            {/* Dropdown Menu */}
+            {showUserMenu && (
+              <>
+                {/* Backdrop to close menu */}
+                <div 
+                  className="fixed inset-0 z-[9998]" 
+                  onClick={() => setShowUserMenu(false)}
+                />
+                
+                {/* Menu */}
+                <div className="absolute right-0 mt-2 w-48 bg-white/10 backdrop-blur-lg rounded-lg border border-white/20 shadow-xl overflow-hidden z-[9999]">
+                  <div className="p-3 border-b border-white/10">
+                    <p className="text-white text-sm font-medium">👤 Administrador</p>
+                    <p className="text-white/50 text-xs mt-0.5">Panel de control</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      localStorage.removeItem('adminAuth');
+                      setIsAuthenticated(false);
+                      setShowUserMenu(false);
+                    }}
+                    className="w-full px-4 py-2.5 text-left text-white/80 hover:bg-red-500/20 hover:text-red-200 transition-all flex items-center gap-2 text-sm"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Cerrar sesión
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-2 mb-6 border border-white/20 flex gap-2">
-          <button
-            onClick={() => setActiveTab('guests')}
-            className={`flex-1 py-3 rounded-lg font-medium transition-all ${
-              activeTab === 'guests'
-                ? 'bg-white text-black'
-                : 'text-white/60 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            👥 Invitados ({guests.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('pending')}
-            className={`flex-1 py-3 rounded-lg font-medium transition-all ${
-              activeTab === 'pending'
-                ? 'bg-white text-black'
-                : 'text-white/60 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            ⏳ Mensajes ({pendingMessages.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('approved')}
-            className={`flex-1 py-3 rounded-lg font-medium transition-all ${
-              activeTab === 'approved'
-                ? 'bg-white text-black'
-                : 'text-white/60 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            ✅ Aprobados ({approvedMessages.length})
-          </button>
+        <div className="mb-6">
+          <div className="flex items-center gap-0.5 border-b border-white/20">
+            <button
+              onClick={() => setActiveTab('guests')}
+              className={`flex-1 py-2.5 text-xs font-medium transition-all relative ${
+                activeTab === 'guests'
+                  ? 'text-white'
+                  : 'text-white/50 hover:text-white/80'
+              }`}
+            >
+              <span className="flex flex-col items-center gap-1">
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full leading-none ${
+                  activeTab === 'guests' 
+                    ? 'bg-white/20 text-white' 
+                    : 'bg-white/10 text-white/50'
+                }`}>
+                  {guests.length}
+                </span>
+                <span>👥 Invitados</span>
+              </span>
+              {activeTab === 'guests' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-t-full"></div>
+              )}
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('pending')}
+              className={`flex-1 py-2.5 text-xs font-medium transition-all relative ${
+                activeTab === 'pending'
+                  ? 'text-white'
+                  : 'text-white/50 hover:text-white/80'
+              }`}
+            >
+              <span className="flex flex-col items-center gap-1">
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full leading-none ${
+                  activeTab === 'pending' 
+                    ? 'bg-yellow-500/30 text-white' 
+                    : 'bg-white/10 text-white/50'
+                }`}>
+                  {pendingMessages.length}
+                </span>
+                <span>⏳ Mensajes</span>
+              </span>
+              {activeTab === 'pending' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-t-full"></div>
+              )}
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('approved')}
+              className={`flex-1 py-2.5 text-xs font-medium transition-all relative ${
+                activeTab === 'approved'
+                  ? 'text-white'
+                  : 'text-white/50 hover:text-white/80'
+              }`}
+            >
+              <span className="flex flex-col items-center gap-1">
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full leading-none ${
+                  activeTab === 'approved' 
+                    ? 'bg-green-500/30 text-white' 
+                    : 'bg-white/10 text-white/50'
+                }`}>
+                  {approvedMessages.length}
+                </span>
+                <span>✅ Aprobados</span>
+              </span>
+              {activeTab === 'approved' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-t-full"></div>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Content */}
@@ -527,143 +586,234 @@ const AdminPanel = () => {
             {/* Guests Tab */}
             {activeTab === 'guests' && (
               <>
-                {/* Add Guest Button */}
-                <div className="flex justify-end items-center gap-4 mb-4">
-                  <button
-                    onClick={() => {
-                      setShowGuestForm(!showGuestForm);
-                      setEditingGuest(null);
-                      resetGuestForm();
-                    }}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all font-semibold shadow-lg"
-                  >
-                    {showGuestForm ? '❌ Cancelar' : '➕ Agregar Invitado'}
-                  </button>
+              {/* Guest Stats */}
+                <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20 mb-4">
+                  {/* Header with Refresh Button */}
+                  <div className="flex items-center justify-end mb-3">
+                    <button
+                      onClick={() => fetchGuests(false)}
+                      className="p-1.5 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all"
+                      title="Actualizar invitados"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </button>
+                  </div>
+                  {/* Row 1: Invitados */}
+                  <div className="flex items-center justify-around gap-3 pb-3 mb-3 border-b border-white/10">
+                    <div className="text-center">
+                      <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-blue-500/30 to-blue-600/30 flex items-center justify-center text-2xl border border-blue-400/30">
+                        👥
+                      </div>
+                      <div className="text-white text-xl font-bold">{guests.length}</div>
+                      <div className="text-blue-200 text-xs font-medium mt-0.5">Invitados</div>
+                    </div>
+                    
+                    <div className="w-px h-12 bg-white/20"></div>
+                    
+                    <div className="text-center">
+                      <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-pink-500/30 to-pink-600/30 flex items-center justify-center text-2xl border border-pink-400/30">
+                        👰
+                      </div>
+                      <div className="text-white text-xl font-bold">
+                        {guests.filter(g => g.guest_from === 'wife').length}
+                      </div>
+                      <div className="text-pink-200 text-xs font-medium mt-0.5">Novia</div>
+                    </div>
+                    
+                    <div className="w-px h-12 bg-white/20"></div>
+                    
+                    <div className="text-center">
+                      <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-cyan-500/30 to-cyan-600/30 flex items-center justify-center text-2xl border border-cyan-400/30">
+                        🤵
+                      </div>
+                      <div className="text-white text-xl font-bold">
+                        {guests.filter(g => g.guest_from === 'husband').length}
+                      </div>
+                      <div className="text-cyan-200 text-xs font-medium mt-0.5">Novio</div>
+                    </div>
+                    
+                    <div className="w-px h-12 bg-white/20"></div>
+                    
+                    <div className="text-center">
+                      <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-purple-500/30 to-purple-600/30 flex items-center justify-center text-2xl border border-purple-400/30">
+                        🎉
+                      </div>
+                      <div className="text-white text-xl font-bold">
+                        {guests.reduce((sum, g) => sum + (g.num_guests || 0), 0)}
+                      </div>
+                      <div className="text-purple-200 text-xs font-medium mt-0.5">Personas</div>
+                    </div>
+                  </div>
+
+                  {/* Row 2: Confirmados y Dinero */}
+                  <div className="flex items-center justify-around gap-3">
+                    <div className="text-center">
+                      <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-green-500/30 to-green-600/30 flex items-center justify-center text-2xl border border-green-400/30">
+                        ✅
+                      </div>
+                      <div className="text-white text-xl font-bold">
+                        {guests.filter(g => g.confirmed).length}
+                      </div>
+                      <div className="text-green-200 text-xs font-medium mt-0.5">Confirmados</div>
+                    </div>
+                    
+                    <div className="w-px h-12 bg-white/20"></div>
+                    
+                    <div className="text-center flex-1">
+                      <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-emerald-500/30 to-emerald-600/30 flex items-center justify-center text-2xl border border-emerald-400/30">
+                        💲
+                      </div>
+                      <div className="text-white text-base font-bold">
+                        ${guests.reduce((sum, g) => sum + ((g.cost_per_person || 0) * (g.num_guests || 0)), 0).toLocaleString('es-AR')}
+                      </div>
+                      <div className="text-emerald-200 text-xs font-medium mt-0.5">Total Esperado</div>
+                    </div>
+                    
+                    <div className="w-px h-12 bg-white/20"></div>
+                    
+                    <div className="text-center flex-1">
+                      <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-yellow-500/30 to-yellow-600/30 flex items-center justify-center text-2xl border border-yellow-400/30">
+                        💰
+                      </div>
+                      <div className="text-white text-base font-bold">
+                        ${Object.values(allGuestPayments).reduce((sum, amount) => sum + amount, 0).toLocaleString('es-AR')}
+                      </div>
+                      <div className="text-yellow-200 text-xs font-medium mt-0.5">Recaudado</div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Search and Filters */}
                 <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20 mb-4">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="md:col-span-2">
-                      <label className="text-white/70 text-xs font-medium block mb-2">
-                        🔍 Buscar invitado
-                      </label>
+                  {/* Filters Legend */}
+                  <div className="mb-3 pb-3 border-b border-white/10">
+                    <h3 className="text-white/80 text-sm font-semibold flex items-center gap-2">
+                      🎯 Filtros rápidos
+                    </h3>
+                  </div>
+
+                  {/* Search Bar with Add Button */}
+                  <div className="mb-4 flex gap-3">
+                    <div className="relative flex-1">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-lg">
+                        🔍
+                      </span>
                       <input
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Buscar por nombre, apellido, nickname o código..."
-                        className="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
+                        placeholder="Nombre, Apellido, etc..."
+                        className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-white/20 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/25 transition-all"
                       />
                     </div>
-                    <div>
-                      <label className="text-white/70 text-xs font-medium block mb-2">
-                        🎯 Filtrar por estado
-                      </label>
-                      <select
-                        value={filterConfirmed}
-                        onChange={(e) => setFilterConfirmed(e.target.value)}
-                        className="w-full px-4 py-2 rounded-lg bg-white/20 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
-                      >
-                        <option value="all">Todos</option>
-                        <option value="confirmed">✅ Confirmados</option>
-                        <option value="pending">⏳ Pendientes</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-white/70 text-xs font-medium block mb-2">
-                        💑 Filtrar por lado
-                      </label>
-                      <select
-                        value={filterGuestFrom}
-                        onChange={(e) => setFilterGuestFrom(e.target.value)}
-                        className="w-full px-4 py-2 rounded-lg bg-white/20 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
-                      >
-                        <option value="all">Todos</option>
-                        <option value="wife">👰 Novia</option>
-                        <option value="husband">🤵 Novio</option>
-                      </select>
-                    </div>
+                    <button
+                      onClick={() => {
+                        setShowGuestForm(!showGuestForm);
+                        setEditingGuest(null);
+                        resetGuestForm();
+                      }}
+                      className="px-4 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all font-medium shadow-lg whitespace-nowrap text-sm"
+                    >
+                      {showGuestForm ? '❌ Cancelar' : '➕ Nuevo'}
+                    </button>
                   </div>
-                  {(searchTerm || filterConfirmed !== 'all' || filterGuestFrom !== 'all') && (
-                    <div className="mt-3 flex items-center justify-between">
-                      <p className="text-white/60 text-sm">
-                        Mostrando {filteredGuests.length} de {guests.length} invitados
-                      </p>
-                      <button
-                        onClick={() => {
-                          setSearchTerm('');
-                          setFilterConfirmed('all');
-                          setFilterGuestFrom('all');
-                        }}
-                        className="text-xs text-white/60 hover:text-white underline"
-                      >
-                        Limpiar filtros
-                      </button>
-                    </div>
-                  )}
-                </div>
 
+                  {/* Filter Pills */}
+                  <div className="space-y-2.5">
+                    {/* Estado Filters */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-white/70 text-xs font-semibold whitespace-nowrap">Estado:</span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <button
+                          onClick={() => setFilterConfirmed('all')}
+                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                            filterConfirmed === 'all'
+                              ? 'bg-white/30 text-white border-2 border-white/50'
+                              : 'bg-white/10 text-white/70 border border-white/20 hover:bg-white/20'
+                          }`}
+                        >
+                          Todos
+                        </button>
+                        <button
+                          onClick={() => setFilterConfirmed('confirmed')}
+                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                            filterConfirmed === 'confirmed'
+                              ? 'bg-green-500/40 text-white border-2 border-green-400/60'
+                              : 'bg-white/10 text-white/70 border border-white/20 hover:bg-green-500/20'
+                          }`}
+                        >
+                          ✅ Si Voy
+                        </button>
+                        <button
+                          onClick={() => setFilterConfirmed('pending')}
+                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                            filterConfirmed === 'pending'
+                              ? 'bg-yellow-500/40 text-white border-2 border-yellow-400/60'
+                              : 'bg-white/10 text-white/70 border border-white/20 hover:bg-yellow-500/20'
+                          }`}
+                        >
+                          ⏳ Pendiente
+                        </button>
+                      </div>
+                    </div>
 
+                    {/* Lado Filters */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-white/70 text-xs font-semibold whitespace-nowrap">Lado:</span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <button
+                          onClick={() => setFilterGuestFrom('all')}
+                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                            filterGuestFrom === 'all'
+                              ? 'bg-white/30 text-white border-2 border-white/50'
+                              : 'bg-white/10 text-white/70 border border-white/20 hover:bg-white/20'
+                          }`}
+                        >
+                          Ambos
+                        </button>
+                        <button
+                          onClick={() => setFilterGuestFrom('wife')}
+                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                            filterGuestFrom === 'wife'
+                              ? 'bg-pink-500/40 text-white border-2 border-pink-400/60'
+                              : 'bg-white/10 text-white/70 border border-white/20 hover:bg-pink-500/20'
+                          }`}
+                        >
+                          👰 Novia
+                        </button>
+                        <button
+                          onClick={() => setFilterGuestFrom('husband')}
+                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                            filterGuestFrom === 'husband'
+                              ? 'bg-cyan-500/40 text-white border-2 border-cyan-400/60'
+                              : 'bg-white/10 text-white/70 border border-white/20 hover:bg-cyan-500/20'
+                          }`}
+                        >
+                          🤵 Novio
+                        </button>
+                      </div>
+                    </div>
 
-                {/* Guest Stats */}
-                <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20 mb-4">
-                  <div className="flex items-center justify-around gap-6 flex-wrap">
-                    <div className="text-center">
-                      <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-gradient-to-br from-blue-500/30 to-blue-600/30 flex items-center justify-center text-3xl border border-blue-400/30">
-                        👥
+                    {/* Clear Filters Row */}
+                    {(searchTerm || filterConfirmed !== 'all' || filterGuestFrom !== 'all') && (
+                      <div className="flex items-center justify-between pt-1 border-t border-white/10">
+                        <p className="text-white/60 text-xs">
+                          📊 {filteredGuests.length} de {guests.length} invitados
+                        </p>
+                        <button
+                          onClick={() => {
+                            setSearchTerm('');
+                            setFilterConfirmed('all');
+                            setFilterGuestFrom('all');
+                          }}
+                          className="px-2.5 py-1 rounded-full text-xs font-medium bg-red-500/30 text-white border border-red-400/40 hover:bg-red-500/40 transition-all"
+                        >
+                          ✕ Limpiar filtros
+                        </button>
                       </div>
-                      <div className="text-white text-2xl font-bold">{guests.length}</div>
-                      <div className="text-blue-200 text-xs font-medium mt-1">Invitados</div>
-                    </div>
-                    
-                    <div className="w-px h-16 bg-white/20"></div>
-                    
-                    <div className="text-center">
-                      <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-gradient-to-br from-green-500/30 to-green-600/30 flex items-center justify-center text-3xl border border-green-400/30">
-                        ✅
-                      </div>
-                      <div className="text-white text-2xl font-bold">
-                        {guests.filter(g => g.confirmed).length}
-                      </div>
-                      <div className="text-green-200 text-xs font-medium mt-1">Confirmados</div>
-                    </div>
-                    
-                    <div className="w-px h-16 bg-white/20"></div>
-                    
-                    <div className="text-center">
-                      <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-gradient-to-br from-purple-500/30 to-purple-600/30 flex items-center justify-center text-3xl border border-purple-400/30">
-                        🎉
-                      </div>
-                      <div className="text-white text-2xl font-bold">
-                        {guests.reduce((sum, g) => sum + (g.num_guests || 0), 0)}
-                      </div>
-                      <div className="text-purple-200 text-xs font-medium mt-1">Personas</div>
-                    </div>
-                    
-                    <div className="w-px h-16 bg-white/20"></div>
-                    
-                    <div className="text-center">
-                      <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-gradient-to-br from-pink-500/30 to-pink-600/30 flex items-center justify-center text-3xl border border-pink-400/30">
-                        👰
-                      </div>
-                      <div className="text-white text-2xl font-bold">
-                        {guests.filter(g => g.guest_from === 'wife').length}
-                      </div>
-                      <div className="text-pink-200 text-xs font-medium mt-1">Novia</div>
-                    </div>
-                    
-                    <div className="w-px h-16 bg-white/20"></div>
-                    
-                    <div className="text-center">
-                      <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-gradient-to-br from-cyan-500/30 to-cyan-600/30 flex items-center justify-center text-3xl border border-cyan-400/30">
-                        🤵
-                      </div>
-                      <div className="text-white text-2xl font-bold">
-                        {guests.filter(g => g.guest_from === 'husband').length}
-                      </div>
-                      <div className="text-cyan-200 text-xs font-medium mt-1">Novio</div>
-                    </div>
+                    )}
                   </div>
                 </div>
 
@@ -795,15 +945,33 @@ const AdminPanel = () => {
                     </div>
                   </div>
                 ) : (
-                  pendingMessages.map((msg) => (
-                    <MessageCard
-                      key={msg.id}
-                      message={msg}
-                      onApprove={handleApprove}
-                      onDelete={handleDelete}
-                      isPending={true}
-                    />
-                  ))
+                  <div className="space-y-4">
+                    {/* Header with Refresh */}
+                    <div className="flex justify-between items-center">
+                      <h2 className="text-white/70 text-sm font-medium">
+                        Mensajes pendientes de aprobación
+                      </h2>
+                      <button
+                        onClick={() => fetchMessages(false)}
+                        className="p-1.5 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all"
+                        title="Actualizar mensajes"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      </button>
+                    </div>
+                    
+                    {pendingMessages.map((msg) => (
+                      <MessageCard
+                        key={msg.id}
+                        message={msg}
+                        onApprove={handleApprove}
+                        onDelete={handleDelete}
+                        isPending={true}
+                      />
+                    ))}
+                  </div>
                 )}
               </>
             )}
@@ -821,15 +989,33 @@ const AdminPanel = () => {
                     </div>
                   </div>
                 ) : (
-                  approvedMessages.map((msg) => (
-                    <MessageCard
-                      key={msg.id}
-                      message={msg}
-                      onUnapprove={handleUnapprove}
-                      onDelete={handleDelete}
-                      isPending={false}
-                    />
-                  ))
+                  <div className="space-y-4">
+                    {/* Header with Refresh */}
+                    <div className="flex justify-between items-center">
+                      <h2 className="text-white/70 text-sm font-medium">
+                        Mensajes aprobados
+                      </h2>
+                      <button
+                        onClick={() => fetchMessages(false)}
+                        className="p-1.5 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all"
+                        title="Actualizar mensajes"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      </button>
+                    </div>
+                    
+                    {approvedMessages.map((msg) => (
+                      <MessageCard
+                        key={msg.id}
+                        message={msg}
+                        onUnapprove={handleUnapprove}
+                        onDelete={handleDelete}
+                        isPending={false}
+                      />
+                    ))}
+                  </div>
                 )}
               </>
             )}
