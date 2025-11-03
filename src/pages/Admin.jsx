@@ -451,21 +451,33 @@ const AdminPanel = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-4">
       <div className="max-w-6xl mx-auto">
         {/* Header - Title and User Menu in one row */}
-        <div className="px-6 py-4 mb-6 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-white flex items-center gap-2">
-            💍 Panel de Administración
-          </h1>
+        <div className="px-6 py-5 mb-6 flex items-center justify-between border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 border border-white/20 flex items-center justify-center text-xl backdrop-blur-sm">
+              💍
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-white leading-tight">
+                Panel de Administración
+              </h1>
+              <p className="text-white/50 text-[11px] font-medium">
+                Gestión de invitados y mensajes
+              </p>
+            </div>
+          </div>
 
           {/* User Menu */}
           <div className="relative">
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="p-2.5 bg-white/10 backdrop-blur-lg text-white rounded-full hover:bg-white/20 transition-all border border-white/20 shadow-lg"
+              className="group p-2.5 bg-white/10 backdrop-blur-lg text-white rounded-full hover:bg-white/20 hover:scale-105 active:scale-95 transition-all duration-200 border border-white/20 shadow-lg relative"
               title="Menú de usuario"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 transition-transform group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
+              {/* Online indicator */}
+              <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-900 animate-pulse"></span>
             </button>
 
             {/* Dropdown Menu */}
@@ -478,24 +490,60 @@ const AdminPanel = () => {
                 />
                 
                 {/* Menu */}
-                <div className="absolute right-0 mt-2 w-48 bg-white/10 backdrop-blur-lg rounded-lg border border-white/20 shadow-xl overflow-hidden z-[9999]">
-                  <div className="p-3 border-b border-white/10">
-                    <p className="text-white text-sm font-medium">👤 Administrador</p>
-                    <p className="text-white/50 text-xs mt-0.5">Panel de control</p>
+                <div 
+                  className="absolute right-0 mt-3 w-56 bg-gradient-to-br from-gray-900/95 via-black/95 to-gray-900/95 backdrop-blur-xl rounded-xl border border-white/20 shadow-2xl overflow-hidden z-[9999]"
+                  style={{ animation: 'slideDown 0.2s ease-out' }}
+                >
+                  <style>{`
+                    @keyframes slideDown {
+                      from {
+                        opacity: 0;
+                        transform: translateY(-10px);
+                      }
+                      to {
+                        opacity: 1;
+                        transform: translateY(0);
+                      }
+                    }
+                  `}</style>
+                  
+                  {/* Header */}
+                  <div className="p-4 border-b border-white/10 bg-gradient-to-r from-purple-500/10 to-pink-500/10">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500/30 to-pink-500/30 border border-white/20 flex items-center justify-center backdrop-blur-sm">
+                        <span className="text-lg">👤</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white text-sm font-semibold leading-tight">Administrador</p>
+                        <p className="text-white/50 text-xs mt-0.5 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                          En línea
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => {
-                      localStorage.removeItem('adminAuth');
-                      setIsAuthenticated(false);
-                      setShowUserMenu(false);
-                    }}
-                    className="w-full px-4 py-2.5 text-left text-white/80 hover:bg-red-500/20 hover:text-red-200 transition-all flex items-center gap-2 text-sm"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    Cerrar sesión
-                  </button>
+                  
+                  {/* Menu Items */}
+                  <div className="p-2">
+                    <button
+                      onClick={() => {
+                        localStorage.removeItem('adminAuth');
+                        setIsAuthenticated(false);
+                        setShowUserMenu(false);
+                      }}
+                      className="w-full px-3 py-2.5 rounded-lg text-left text-white/80 hover:bg-red-500/20 hover:text-red-200 transition-all flex items-center gap-3 text-sm group"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center group-hover:bg-red-500/20 transition-all">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">Cerrar sesión</p>
+                        <p className="text-[10px] text-white/40 group-hover:text-red-200/60 transition-colors">Salir del panel</p>
+                      </div>
+                    </button>
+                  </div>
                 </div>
               </>
             )}
