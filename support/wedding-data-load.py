@@ -84,7 +84,7 @@ class SupabaseGuestLoader:
         # Campos opcionales
         optional_fields = {
             'confirmed': 'confirmed',
-            'num_companions': 'num_companions',
+            'num_guests': 'num_guests',
             'notes': 'notes'
         }
         
@@ -95,7 +95,7 @@ class SupabaseGuestLoader:
                 # Conversión de tipos
                 if db_col == 'confirmed':
                     guest_data[db_col] = bool(value)
-                elif db_col in ['num_companions']:
+                elif db_col in ['num_guests']:
                     guest_data[db_col] = int(value)
                 elif db_col == 'cost_per_person':
                     guest_data[db_col] = float(value)
@@ -273,7 +273,7 @@ def main():
     if not os.path.exists(EXCEL_FILE):
         print(f"❌ Error: No se encuentra el archivo {EXCEL_FILE}")
         print("\n📋 Ejemplo de estructura del Excel:")
-        print("   first_lastname | nickname | guest_from | cost_per_person | guest_code     | confirmed | num_companions | notes")
+        print("   first_lastname | nickname | guest_from | cost_per_person | guest_code     | confirmed | num_guests | notes")
         print("   Franco Lavayen | Fran     | husband    | 150.00          | FL-0000000001  | False     | 2              | VIP")
         print("\n⚠️  IMPORTANTE: La columna 'guest_code' es OBLIGATORIA y debe ser única")
         return

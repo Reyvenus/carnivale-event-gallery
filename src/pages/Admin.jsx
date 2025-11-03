@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import supabase from '../lib/supabaseClient';
@@ -13,11 +13,21 @@ const AdminPanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showGuestForm, setShowGuestForm] = useState(false);
   const [editingGuest, setEditingGuest] = useState(null);
-  const [viewMode, setViewMode] = useState('table'); // 'table' or 'cards'
   const [searchTerm, setSearchTerm] = useState('');
   const [filterConfirmed, setFilterConfirmed] = useState('all'); // 'all', 'confirmed', 'pending'
-  const [copiedGuestId, setCopiedGuestId] = useState(null); // Para el efecto de copiado
-  const [showCopyToast, setShowCopyToast] = useState(false); // Para mostrar el toast
+  const [filterGuestFrom, setFilterGuestFrom] = useState('all'); // 'all', 'wife', 'husband'
+  const [showWhatsAppPreview, setShowWhatsAppPreview] = useState(false);
+  const [previewGuest, setPreviewGuest] = useState(null);
+  const [showPaymentsModal, setShowPaymentsModal] = useState(false);
+  const [selectedGuest, setSelectedGuest] = useState(null);
+  const [guestPayments, setGuestPayments] = useState([]);
+  const [allGuestPayments, setAllGuestPayments] = useState({}); // Objeto con { guest_id: total_pagado }
+  const [showAddPayment, setShowAddPayment] = useState(false);
+  const [paymentForm, setPaymentForm] = useState({
+    amount: '',
+    payment_date: new Date().toISOString().split('T')[0],
+    notes: ''
+  });
   const [guestForm, setGuestForm] = useState({
     first_name: '',
     last_name: '',
@@ -25,13 +35,14 @@ const AdminPanel = () => {
     guest_code: '',
     cost_per_person: 0,
     confirmed: false,
-    num_companions: 0,
-    notes: ''
+    num_guests: 0,
+    notes: '',
+    guest_from: 'wife' // Valor por defecto
   });
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (password === import.meta.env.VITE_APP_ADMIN_PASSWORD) {
+    if (password === '1234') {
       setIsAuthenticated(true);
       localStorage.setItem('adminAuth', 'true');
     } else {
@@ -67,19 +78,46 @@ const AdminPanel = () => {
     }
   };
 
-  const fetchGuests = async (silent = false) => {
+  const fetchAllGuestPayments = useCallback(async (guestsList) => {
+    if (!guestsList || guestsList.length === 0) {
+      setAllGuestPayments({});
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('guest_payments')
+      .select('guest_id, amount');
+
+    if (!error && data) {
+      // Sumar todos los pagos por guest_id
+      const paymentsByGuest = data.reduce((acc, payment) => {
+        if (!acc[payment.guest_id]) {
+          acc[payment.guest_id] = 0;
+        }
+        acc[payment.guest_id] += parseFloat(payment.amount);
+        return acc;
+      }, {});
+      setAllGuestPayments(paymentsByGuest);
+    } else {
+      console.error('Error fetching all payments:', error);
+    }
+  }, []);
+
+  const fetchGuests = useCallback(async (silent = false) => {
     // Solo mostrar loading en la carga inicial
     if (!silent) {
       setLoading(true);
     }
     
     const { data, error } = await supabase
-      .from('guests')
+      .from(import.meta.env.VITE_GUESTS_TABLE_NAME)
       .select('*')
       .order('created_at', { ascending: false });
 
     if (!error) {
       setGuests(data || []);
+      // Cargar pagos de todos los invitados
+      fetchAllGuestPayments(data || []);
     } else {
       console.error('Error fetching guests:', error);
     }
@@ -87,7 +125,7 @@ const AdminPanel = () => {
     if (!silent) {
       setLoading(false);
     }
-  };
+  }, [fetchAllGuestPayments]);
 
   const handleSaveGuest = async (e) => {
     e.preventDefault();
@@ -95,7 +133,7 @@ const AdminPanel = () => {
     if (editingGuest) {
       // Actualizar invitado existente
       const { error } = await supabase
-        .from('guests')
+        .from(import.meta.env.VITE_GUESTS_TABLE_NAME)
         .update(guestForm)
         .eq('id', editingGuest.id);
 
@@ -111,7 +149,7 @@ const AdminPanel = () => {
     } else {
       // Crear nuevo invitado
       const { error } = await supabase
-        .from('guests')
+        .from(import.meta.env.VITE_GUESTS_TABLE_NAME)
         .insert([guestForm]);
 
       if (!error) {
@@ -134,8 +172,9 @@ const AdminPanel = () => {
       guest_code: guest.guest_code,
       cost_per_person: guest.cost_per_person,
       confirmed: guest.confirmed,
-      num_companions: guest.num_companions || 0,
-      notes: guest.notes || ''
+      num_guests: guest.num_guests || 0,
+      notes: guest.notes || '',
+      guest_from: guest.guest_from || 'wife'
     });
     setShowGuestForm(true);
   };
@@ -144,7 +183,7 @@ const AdminPanel = () => {
     if (!confirm('¿Estás seguro de eliminar este invitado?')) return;
 
     const { error } = await supabase
-      .from('guests')
+      .from(import.meta.env.VITE_GUESTS_TABLE_NAME)
       .delete()
       .eq('id', id);
 
@@ -164,54 +203,99 @@ const AdminPanel = () => {
       guest_code: '',
       cost_per_person: 0,
       confirmed: false,
-      num_companions: 0,
-      notes: ''
+      num_guests: 0,
+      notes: '',
+      guest_from: 'wife'
     });
   };
 
-  const handleCopyLink = (guestCode, guestId) => {
-    console.log('handleCopyLink llamado con:', guestCode, guestId);
-    const url = `${window.location.origin}?code=${encodeURIComponent(guestCode)}`;
-    console.log('URL a copiar:', url);
-    
-    // Intentar copiar al clipboard
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(() => {
-        console.log('Copiado exitosamente');
-        setCopiedGuestId(guestId);
-        setShowCopyToast(true);
-        setTimeout(() => {
-          setCopiedGuestId(null);
-          setShowCopyToast(false);
-        }, 2000);
-      }).catch(err => {
-        console.error('Error al copiar:', err);
-        alert('❌ Error al copiar el enlace. URL: ' + url);
-      });
+  const handleSendWhatsApp = (guest) => {
+    setPreviewGuest(guest);
+    setShowWhatsAppPreview(true);
+  };
+
+  const confirmSendWhatsApp = () => {
+    if (!previewGuest) return;
+    const url = `${window.location.origin}?code=${encodeURIComponent(previewGuest.guest_code)}`;
+    const guestName = previewGuest.nickname || previewGuest.first_name;
+    const message = `¡Hola ${guestName}! 👋\n\n¡Nos casamos! 💍💐\n\nTe invitamos a nuestra boda. Aquí está tu invitación personalizada:\n\n${url}\n\n¡Esperamos verte allí! 🎉`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+    setShowWhatsAppPreview(false);
+    setPreviewGuest(null);
+  };
+
+  // Funciones de pagos
+  const handleOpenPayments = (guest) => {
+    setSelectedGuest(guest);
+    setShowPaymentsModal(true);
+    // Cargar pagos de forma asíncrona sin bloquear la apertura del modal
+    fetchGuestPayments(guest.id);
+  };
+
+  const fetchGuestPayments = async (guestId) => {
+    const { data, error } = await supabase
+      .from('guest_payments')
+      .select('*')
+      .eq('guest_id', guestId)
+      .order('payment_date', { ascending: false });
+
+    if (!error) {
+      setGuestPayments(data || []);
     } else {
-      // Fallback para navegadores que no soportan clipboard API
-      console.log('Clipboard API no disponible, usando fallback');
-      const textArea = document.createElement('textarea');
-      textArea.value = url;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      document.body.appendChild(textArea);
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        console.log('Copiado con fallback');
-        setCopiedGuestId(guestId);
-        setShowCopyToast(true);
-        setTimeout(() => {
-          setCopiedGuestId(null);
-          setShowCopyToast(false);
-        }, 2000);
-      } catch (err) {
-        console.error('Error en fallback:', err);
-        alert('❌ No se pudo copiar. URL: ' + url);
-      }
-      document.body.removeChild(textArea);
+      console.error('Error fetching payments:', error);
     }
+  };
+
+  const handleAddPayment = async (e) => {
+    e.preventDefault();
+    if (!selectedGuest) return;
+
+    const { error } = await supabase
+      .from('guest_payments')
+      .insert([{
+        guest_id: selectedGuest.id,
+        amount: parseFloat(paymentForm.amount),
+        payment_date: paymentForm.payment_date,
+        notes: paymentForm.notes
+      }]);
+
+    if (!error) {
+      alert('✅ Pago agregado correctamente');
+      setShowAddPayment(false);
+      setPaymentForm({
+        amount: '',
+        payment_date: new Date().toISOString().split('T')[0],
+        notes: ''
+      });
+      await fetchGuestPayments(selectedGuest.id);
+      // Recargar todos los pagos para actualizar la tabla
+      await fetchAllGuestPayments(guests);
+    } else {
+      alert('❌ Error al agregar pago: ' + error.message);
+    }
+  };
+
+  const handleDeletePayment = async (paymentId) => {
+    if (!confirm('¿Estás seguro de eliminar este pago?')) return;
+
+    const { error } = await supabase
+      .from('guest_payments')
+      .delete()
+      .eq('id', paymentId);
+
+    if (!error) {
+      alert('✅ Pago eliminado');
+      await fetchGuestPayments(selectedGuest.id);
+      // Recargar todos los pagos para actualizar la tabla
+      await fetchAllGuestPayments(guests);
+    } else {
+      alert('❌ Error al eliminar: ' + error.message);
+    }
+  };
+
+  const getTotalPaid = (payments) => {
+    return payments.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0);
   };
 
   // Filtrar y buscar invitados
@@ -230,7 +314,12 @@ const AdminPanel = () => {
       (filterConfirmed === 'confirmed' && guest.confirmed) ||
       (filterConfirmed === 'pending' && !guest.confirmed);
 
-    return matchesSearch && matchesConfirmed;
+    // Filtro de lado (wife/husband)
+    const matchesGuestFrom = 
+      filterGuestFrom === 'all' ||
+      guest.guest_from === filterGuestFrom;
+
+    return matchesSearch && matchesConfirmed && matchesGuestFrom;
   });
 
   const handleApprove = async (id) => {
@@ -296,7 +385,7 @@ const AdminPanel = () => {
       
       return () => clearInterval(interval);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, fetchGuests]);
 
   if (!isAuthenticated) {
     return (
@@ -412,30 +501,8 @@ const AdminPanel = () => {
             {/* Guests Tab */}
             {activeTab === 'guests' && (
               <>
-                {/* Add Guest Button & View Toggle */}
-                <div className="flex justify-between items-center gap-4 mb-4 flex-wrap">
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setViewMode('table')}
-                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                        viewMode === 'table'
-                          ? 'bg-white text-black'
-                          : 'bg-white/20 text-white hover:bg-white/30'
-                      }`}
-                    >
-                      📊 Tabla
-                    </button>
-                    <button
-                      onClick={() => setViewMode('cards')}
-                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                        viewMode === 'cards'
-                          ? 'bg-white text-black'
-                          : 'bg-white/20 text-white hover:bg-white/30'
-                      }`}
-                    >
-                      🎴 Tarjetas
-                    </button>
-                  </div>
+                {/* Add Guest Button */}
+                <div className="flex justify-end items-center gap-4 mb-4">
                   <button
                     onClick={() => {
                       setShowGuestForm(!showGuestForm);
@@ -450,7 +517,7 @@ const AdminPanel = () => {
 
                 {/* Search and Filters */}
                 <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20 mb-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="md:col-span-2">
                       <label className="text-white/70 text-xs font-medium block mb-2">
                         🔍 Buscar invitado
@@ -477,8 +544,22 @@ const AdminPanel = () => {
                         <option value="pending">⏳ Pendientes</option>
                       </select>
                     </div>
+                    <div>
+                      <label className="text-white/70 text-xs font-medium block mb-2">
+                        💑 Filtrar por lado
+                      </label>
+                      <select
+                        value={filterGuestFrom}
+                        onChange={(e) => setFilterGuestFrom(e.target.value)}
+                        className="w-full px-4 py-2 rounded-lg bg-white/20 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
+                      >
+                        <option value="all">Todos</option>
+                        <option value="wife">👰 Novia</option>
+                        <option value="husband">🤵 Novio</option>
+                      </select>
+                    </div>
                   </div>
-                  {(searchTerm || filterConfirmed !== 'all') && (
+                  {(searchTerm || filterConfirmed !== 'all' || filterGuestFrom !== 'all') && (
                     <div className="mt-3 flex items-center justify-between">
                       <p className="text-white/60 text-sm">
                         Mostrando {filteredGuests.length} de {guests.length} invitados
@@ -487,6 +568,7 @@ const AdminPanel = () => {
                         onClick={() => {
                           setSearchTerm('');
                           setFilterConfirmed('all');
+                          setFilterGuestFrom('all');
                         }}
                         className="text-xs text-white/60 hover:text-white underline"
                       >
@@ -500,7 +582,7 @@ const AdminPanel = () => {
 
                 {/* Guest Stats */}
                 <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20 mb-4">
-                  <div className="flex items-center justify-around gap-6">
+                  <div className="flex items-center justify-around gap-6 flex-wrap">
                     <div className="text-center">
                       <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-gradient-to-br from-blue-500/30 to-blue-600/30 flex items-center justify-center text-3xl border border-blue-400/30">
                         👥
@@ -528,9 +610,33 @@ const AdminPanel = () => {
                         🎉
                       </div>
                       <div className="text-white text-2xl font-bold">
-                        {guests.reduce((sum, g) => sum + 1 + (g.num_companions || 0), 0)}
+                        {guests.reduce((sum, g) => sum + (g.num_guests || 0), 0)}
                       </div>
                       <div className="text-purple-200 text-xs font-medium mt-1">Personas</div>
+                    </div>
+                    
+                    <div className="w-px h-16 bg-white/20"></div>
+                    
+                    <div className="text-center">
+                      <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-gradient-to-br from-pink-500/30 to-pink-600/30 flex items-center justify-center text-3xl border border-pink-400/30">
+                        👰
+                      </div>
+                      <div className="text-white text-2xl font-bold">
+                        {guests.filter(g => g.guest_from === 'wife').length}
+                      </div>
+                      <div className="text-pink-200 text-xs font-medium mt-1">Novia</div>
+                    </div>
+                    
+                    <div className="w-px h-16 bg-white/20"></div>
+                    
+                    <div className="text-center">
+                      <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-gradient-to-br from-cyan-500/30 to-cyan-600/30 flex items-center justify-center text-3xl border border-cyan-400/30">
+                        🤵
+                      </div>
+                      <div className="text-white text-2xl font-bold">
+                        {guests.filter(g => g.guest_from === 'husband').length}
+                      </div>
+                      <div className="text-cyan-200 text-xs font-medium mt-1">Novio</div>
                     </div>
                   </div>
                 </div>
@@ -550,112 +656,92 @@ const AdminPanel = () => {
                         : 'Intenta con otros términos de búsqueda o filtros'}
                     </div>
                   </div>
-                ) : viewMode === 'table' ? (
+                ) : (
                   /* Table View */
                   <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 overflow-hidden">
                     <div className="overflow-x-auto">
                       <table className="w-full">
                         <thead className="bg-white/10">
                           <tr>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-white/90 uppercase tracking-wider">
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-white/90 uppercase tracking-wider w-[25%]">
                               Invitado
                             </th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-white/90 uppercase tracking-wider">
-                              Código
+                            <th className="px-4 py-3 text-center text-xs font-semibold text-white/90 uppercase tracking-wider w-[40%]">
+                              Info
                             </th>
-                            <th className="px-4 py-3 text-center text-xs font-semibold text-white/90 uppercase tracking-wider">
-                              Estado
-                            </th>
-                            <th className="px-4 py-3 text-center text-xs font-semibold text-white/90 uppercase tracking-wider">
-                              Personas
-                            </th>
-                            <th className="px-4 py-3 text-right text-xs font-semibold text-white/90 uppercase tracking-wider">
-                              Costo Total
-                            </th>
-                            <th className="px-4 py-3 text-center text-xs font-semibold text-white/90 uppercase tracking-wider">
+                            <th className="px-4 py-3 text-center text-xs font-semibold text-white/90 uppercase tracking-wider w-[35%]">
                               Acciones
                             </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-white/10">
                           {filteredGuests.map((guest) => {
-                            const totalPersonas = 1 + (guest.num_companions || 0);
+                            const totalPersonas = guest.num_guests || 0;
                             const costoTotal = (guest.cost_per_person || 0) * totalPersonas;
+                            const totalPagado = allGuestPayments[guest.id] || 0;
                             
                             return (
                               <tr key={guest.id} className="hover:bg-white/5 transition-colors">
-                                <td className="px-4 py-3">
+                                <td className="px-3 py-2 w-[25%]">
                                   <div>
-                                    <div className="text-white font-medium">
+                                    <div className="text-white font-medium text-xs">
                                       {guest.first_name} {guest.last_name}
                                     </div>
                                     {guest.nickname && (
-                                      <div className="text-white/60 text-sm">
+                                      <div className="text-white/60" style={{ fontSize: '10px' }}>
                                         ({guest.nickname})
                                       </div>
                                     )}
                                   </div>
                                 </td>
-                                <td className="px-4 py-3">
-                                  <span className="font-mono text-white/80 text-sm">
-                                    {guest.guest_code}
-                                  </span>
-                                </td>
-                                <td className="px-4 py-3 text-center">
-                                  {guest.confirmed ? (
-                                    <span className="inline-flex px-2 py-1 bg-green-500/20 text-green-200 text-xs font-medium rounded-full">
-                                      ✅ Confirmado
-                                    </span>
-                                  ) : (
-                                    <span className="inline-flex px-2 py-1 bg-yellow-500/20 text-yellow-200 text-xs font-medium rounded-full">
-                                      ⏳ Pendiente
-                                    </span>
-                                  )}
-                                </td>
-                                <td className="px-4 py-3 text-center">
-                                  <div className="text-white font-semibold">
-                                    {totalPersonas}
-                                  </div>
-                                  {guest.num_companions > 0 && (
-                                    <div className="text-white/60 text-xs">
-                                      (+{guest.num_companions} acomp.)
+                                <td className="px-3 py-2 w-[40%]">
+                                  <div className="text-center space-y-0.5">
+                                    {/* Estado */}
+                                    <div className="text-xs">
+                                      {guest.confirmed ? (
+                                        <span className="text-green-400">✅</span>
+                                      ) : (
+                                        <span className="text-yellow-400">⏳</span>
+                                      )}
                                     </div>
-                                  )}
-                                </td>
-                                <td className="px-4 py-3 text-right">
-                                  <div className="text-green-400 font-bold">
-                                    ${costoTotal.toLocaleString('es-AR')}
+                                    {/* Personas */}
+                                    <div className="text-white/80 text-xs">
+                                      {totalPersonas}p
+                                    </div>
+                                    {/* Costo Total */}
+                                    <div className="text-green-400 text-xs font-semibold whitespace-nowrap">
+                                      ${costoTotal.toLocaleString('es-AR')}
+                                    </div>
+                                    {/* Pagado */}
+                                    <div className={`text-xs font-semibold whitespace-nowrap ${totalPagado > 0 ? 'text-purple-400' : 'text-white/40'}`}>
+                                      💰 ${totalPagado.toLocaleString('es-AR')}
+                                    </div>
                                   </div>
-                                  <div className="text-white/60 text-xs">
-                                    ${guest.cost_per_person?.toLocaleString('es-AR')} c/u
-                                  </div>
                                 </td>
-                                <td className="px-4 py-3">
+                                <td className="px-3 py-2 w-[35%]">
                                   <div className="flex items-center justify-center gap-2">
+                                     <button
+                                      onClick={() => handleSendWhatsApp(guest)}
+                                      className="p-1.5 bg-green-500/20 text-green-200 rounded-lg hover:bg-green-500/30 active:scale-95 transition-all"
+                                      title="Enviar por WhatsApp"
+                                    >
+                                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                                      </svg>
+                                    </button>
+                                    <button
+                                      onClick={() => handleOpenPayments(guest)}
+                                      className="p-1.5 bg-purple-500/20 text-purple-200 rounded-lg hover:bg-purple-500/30 active:scale-95 transition-all text-sm"
+                                      title="Ver pagos"
+                                    >
+                                      💰
+                                    </button>
                                     <button
                                       onClick={() => handleEditGuest(guest)}
-                                      className="p-2 bg-blue-500/20 text-blue-200 rounded-lg hover:bg-blue-500/30 transition-all"
+                                      className="p-1.5 bg-blue-500/20 text-blue-200 rounded-lg hover:bg-blue-500/30 active:scale-95 transition-all text-sm"
                                       title="Editar"
                                     >
                                       ✏️
-                                    </button>
-                                    <button
-                                      onClick={() => handleCopyLink(guest.guest_code, guest.id)}
-                                      className={`p-2 rounded-lg transition-all relative ${
-                                        copiedGuestId === guest.id
-                                          ? 'bg-green-500/30 text-green-200'
-                                          : 'bg-purple-500/20 text-purple-200 hover:bg-purple-500/30'
-                                      }`}
-                                      title={copiedGuestId === guest.id ? '¡Copiado!' : 'Copiar Link'}
-                                    >
-                                      {copiedGuestId === guest.id ? '✅' : '🔗'}
-                                    </button>
-                                    <button
-                                      onClick={() => handleDeleteGuest(guest.id)}
-                                      className="p-2 bg-red-500/20 text-red-200 rounded-lg hover:bg-red-500/30 transition-all"
-                                      title="Eliminar"
-                                    >
-                                      🗑️
                                     </button>
                                   </div>
                                 </td>
@@ -665,20 +751,6 @@ const AdminPanel = () => {
                         </tbody>
                       </table>
                     </div>
-                  </div>
-                ) : (
-                  /* Cards View */
-                  <div className="space-y-3">
-                    {filteredGuests.map((guest) => (
-                      <GuestCard
-                        key={guest.id}
-                        guest={guest}
-                        onEdit={handleEditGuest}
-                        onDelete={handleDeleteGuest}
-                        onCopyLink={handleCopyLink}
-                        isCopied={copiedGuestId === guest.id}
-                      />
-                    ))}
                   </div>
                 )}
               </>
@@ -739,37 +811,310 @@ const AdminPanel = () => {
         )}
       </div>
 
-      {/* Toast de copiado usando createPortal */}
-      {showCopyToast && createPortal(
-        <div className="fixed top-4 right-4 z-[9999] pointer-events-none">
-          <div 
-            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-4 rounded-xl shadow-2xl pointer-events-auto"
-            style={{
-              animation: 'slideInRight 0.3s ease-out'
-            }}
-          >
-            <style>{`
-              @keyframes slideInRight {
-                from {
-                  transform: translateX(400px);
-                  opacity: 0;
-                }
-                to {
-                  transform: translateX(0);
-                  opacity: 1;
-                }
+      {/* WhatsApp Preview Modal */}
+      {showWhatsAppPreview && previewGuest && createPortal(
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowWhatsAppPreview(false);
+              setPreviewGuest(null);
+            }
+          }}
+          style={{ animation: 'fadeIn 0.2s ease-out' }}
+        >
+          <style>{`
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            @keyframes slideUp {
+              from {
+                transform: translateY(20px);
+                opacity: 0;
               }
-            `}</style>
-            <div className="flex items-center gap-3">
-              <div className="bg-white/20 rounded-full p-2 flex-shrink-0">
+              to {
+                transform: translateY(0);
+                opacity: 1;
+              }
+            }
+          `}</style>
+          <div 
+            className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-2xl p-6 border border-white/20 w-full max-w-md shadow-2xl"
+            style={{ animation: 'slideUp 0.3s ease-out' }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-500/20 rounded-full">
+                  <svg className="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-white">
+                  Enviar por WhatsApp
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  setShowWhatsAppPreview(false);
+                  setPreviewGuest(null);
+                }}
+                className="p-2 hover:bg-white/10 rounded-lg transition-all text-white/60 hover:text-white"
+              >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {/* Guest Info */}
+              <div className="bg-white/5 rounded-lg p-3">
+                <div className="text-white/60 text-xs mb-1">Invitado:</div>
+                <div className="text-white font-semibold">
+                  {previewGuest.first_name} {previewGuest.last_name}
+                  {previewGuest.nickname && (
+                    <span className="text-white/60 font-normal"> ({previewGuest.nickname})</span>
+                  )}
+                </div>
               </div>
+
+              {/* Message Preview */}
               <div>
-                <p className="font-bold text-base leading-tight">¡Enlace copiado!</p>
-                <p className="text-xs text-white/90 mt-0.5">URL en el portapapeles</p>
+                <div className="text-white/60 text-xs mb-2">Vista previa del mensaje:</div>
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+                  <div className="text-white text-sm whitespace-pre-wrap leading-relaxed">
+                    ¡Hola {previewGuest.nickname || previewGuest.first_name}! 👋
+                    {'\n\n'}
+                    ¡Nos casamos! 💍💐
+                    {'\n\n'}
+                    Te invitamos a nuestra boda. Aquí está tu invitación personalizada:
+                    {'\n\n'}
+                    <span className="text-green-400 font-mono text-xs break-all">
+                      {window.location.origin}?code={previewGuest.guest_code}
+                    </span>
+                    {'\n\n'}
+                    ¡Esperamos verte allí! 🎉
+                  </div>
+                </div>
               </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={confirmSendWhatsApp}
+                  className="flex-1 px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all font-semibold shadow-lg flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                  </svg>
+                  Abrir WhatsApp
+                </button>
+                <button
+                  onClick={() => {
+                    setShowWhatsAppPreview(false);
+                    setPreviewGuest(null);
+                  }}
+                  className="px-4 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all font-semibold"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Payments Modal */}
+      {showPaymentsModal && selectedGuest && createPortal(
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowPaymentsModal(false);
+              setSelectedGuest(null);
+              setShowAddPayment(false);
+            }
+          }}
+          style={{ animation: 'fadeIn 0.2s ease-out' }}
+        >
+          <div 
+            className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-2xl p-6 border border-white/20 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+            style={{ animation: 'slideUp 0.3s ease-out' }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-500/20 rounded-full">
+                  <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">
+                    Pagos - {selectedGuest.first_name} {selectedGuest.last_name}
+                  </h3>
+                  {selectedGuest.nickname && (
+                    <p className="text-white/60 text-sm">({selectedGuest.nickname})</p>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowPaymentsModal(false);
+                  setSelectedGuest(null);
+                  setShowAddPayment(false);
+                }}
+                className="p-2 hover:bg-white/10 rounded-lg transition-all text-white/60 hover:text-white"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Payment Summary */}
+            <div className="bg-white/5 rounded-lg p-4 mb-6 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-blue-200 text-sm">Total a Pagar</span>
+                <span className="text-white text-base font-bold">
+                  ${((selectedGuest.cost_per_person || 0) * selectedGuest.num_guests || 0).toLocaleString('es-AR')}
+                </span>
+              </div>
+              <div className="h-px bg-white/10"></div>
+              <div className="flex items-center justify-between">
+                <span className="text-green-200 text-sm">Total Pagado</span>
+                <span className="text-green-400 text-base font-bold">
+                  ${getTotalPaid(guestPayments).toLocaleString('es-AR')}
+                </span>
+              </div>
+              <div className="h-px bg-white/10"></div>
+              <div className="flex items-center justify-between">
+                <span className={`text-sm font-medium ${
+                  getTotalPaid(guestPayments) >= (selectedGuest.cost_per_person || 0) * selectedGuest.num_guests || 0
+                    ? 'text-green-200'
+                    : 'text-red-200'
+                }`}>Saldo</span>
+                <span className={`text-base font-bold ${
+                  getTotalPaid(guestPayments) >= (selectedGuest.cost_per_person || 0) * selectedGuest.num_guests || 0
+                    ? 'text-green-400'
+                    : 'text-red-400'
+                }`}>
+                  ${(((selectedGuest.cost_per_person || 0) * selectedGuest.num_guests || 0) - getTotalPaid(guestPayments)).toLocaleString('es-AR')}
+                </span>
+              </div>
+            </div>
+
+            {/* Add Payment Button */}
+            {!showAddPayment && (
+              <button
+                onClick={() => setShowAddPayment(true)}
+                className="w-full mb-4 px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all font-semibold"
+              >
+                ➕ Agregar Pago
+              </button>
+            )}
+
+            {/* Add Payment Form */}
+            {showAddPayment && (
+              <form onSubmit={handleAddPayment} className="bg-white/5 rounded-lg p-4 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="text-white/90 text-sm font-medium block mb-2">
+                      Monto *
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={paymentForm.amount}
+                      onChange={(e) => setPaymentForm({...paymentForm, amount: e.target.value})}
+                      className="w-full px-4 py-2 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white/90 text-sm font-medium block mb-2">
+                      Fecha
+                    </label>
+                    <input
+                      type="date"
+                      value={paymentForm.payment_date}
+                      onChange={(e) => setPaymentForm({...paymentForm, payment_date: e.target.value})}
+                      className="w-full px-4 py-2 rounded-lg bg-white/10 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <label className="text-white/90 text-sm font-medium block mb-2">
+                    Notas
+                  </label>
+                  <textarea
+                    value={paymentForm.notes}
+                    onChange={(e) => setPaymentForm({...paymentForm, notes: e.target.value})}
+                    rows="2"
+                    className="w-full px-4 py-2 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all font-semibold"
+                  >
+                    💾 Guardar Pago
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddPayment(false);
+                      setPaymentForm({
+                        amount: '',
+                        payment_date: new Date().toISOString().split('T')[0],
+                        notes: ''
+                      });
+                    }}
+                    className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all font-semibold"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Payments List */}
+            <div>
+              <h4 className="text-white font-semibold mb-3">Historial de Pagos</h4>
+              {guestPayments.length === 0 ? (
+                <div className="text-center py-8 text-white/60">
+                  Sin pagos registrados
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {guestPayments.map((payment) => (
+                    <div key={payment.id} className="bg-white/5 rounded-lg p-4 flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-1">
+                          <span className="text-green-400 font-bold text-lg">
+                            ${parseFloat(payment.amount).toLocaleString('es-AR')}
+                          </span>
+                          <span className="text-white/60 text-sm">
+                            📅 {new Date(payment.payment_date).toLocaleDateString('es-AR')}
+                          </span>
+                        </div>
+                        {payment.notes && (
+                          <p className="text-white/70 text-sm">{payment.notes}</p>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => handleDeletePayment(payment.id)}
+                        className="p-2 bg-red-500/20 text-red-200 rounded-lg hover:bg-red-500/30 transition-all"
+                        title="Eliminar pago"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>,
@@ -895,10 +1240,24 @@ const AdminPanel = () => {
                   <input
                     type="number"
                     min="0"
-                    value={guestForm.num_companions}
-                    onChange={(e) => setGuestForm({...guestForm, num_companions: parseInt(e.target.value)})}
+                    value={guestForm.num_guests}
+                    onChange={(e) => setGuestForm({...guestForm, num_guests: parseInt(e.target.value)})}
                     className="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
+                </div>
+                <div>
+                  <label className="text-white/90 text-sm font-medium block mb-2">
+                    Lado *
+                  </label>
+                  <select
+                    value={guestForm.guest_from}
+                    onChange={(e) => setGuestForm({...guestForm, guest_from: e.target.value})}
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    required
+                  >
+                    <option value="wife">👰 Novia</option>
+                    <option value="husband">🤵 Novio</option>
+                  </select>
                 </div>
               </div>
               
@@ -930,10 +1289,27 @@ const AdminPanel = () => {
               <div className="flex gap-3 pt-4 border-t border-white/10">
                 <button
                   type="submit"
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all font-semibold shadow-lg"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 active:scale-95 transition-all font-semibold shadow-lg"
                 >
                   {editingGuest ? '💾 Guardar Cambios' : '➕ Agregar Invitado'}
                 </button>
+                {editingGuest && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm('¿Estás seguro de eliminar este invitado?')) {
+                        handleDeleteGuest(editingGuest.id);
+                        setShowGuestForm(false);
+                        setEditingGuest(null);
+                        resetGuestForm();
+                      }
+                    }}
+                    className="px-6 py-3 bg-red-500/20 text-red-200 rounded-lg hover:bg-red-500/30 active:scale-95 transition-all font-semibold"
+                    title="Eliminar invitado"
+                  >
+                    🗑️
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => {
@@ -941,7 +1317,7 @@ const AdminPanel = () => {
                     setEditingGuest(null);
                     resetGuestForm();
                   }}
-                  className="px-6 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all font-semibold"
+                  className="px-6 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 active:scale-95 transition-all font-semibold"
                 >
                   Cancelar
                 </button>
@@ -953,137 +1329,6 @@ const AdminPanel = () => {
       )}
     </div>
   );
-};
-
-const GuestCard = ({ guest, onEdit, onDelete, onCopyLink, isCopied }) => {
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Sin fecha';
-    const date = new Date(dateString);
-    return date.toLocaleString('es-ES', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-  };
-
-  const totalPersonas = 1 + (guest.num_companions || 0);
-  const costoTotal = (guest.cost_per_person || 0) * totalPersonas;
-
-  return (
-    <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/15 transition-all">
-      <div className="flex items-start gap-4">
-        {/* Avatar/Icon */}
-        <div className="flex-shrink-0">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-2xl">
-            👤
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-4 mb-3">
-            <div className="flex-1 min-w-0">
-              <h3 className="text-white font-bold text-lg break-words">
-                {guest.first_name} {guest.last_name}
-                {guest.nickname && (
-                  <span className="text-white/60 text-sm font-normal ml-2">
-                    ({guest.nickname})
-                  </span>
-                )}
-              </h3>
-              <p className="text-white/50 text-xs mt-1">
-                📋 Código: <span className="font-mono text-white/70">{guest.guest_code}</span>
-                {' | '}
-                📅 {formatDate(guest.created_at)}
-              </p>
-            </div>
-            {guest.confirmed ? (
-              <span className="px-3 py-1 bg-green-500/20 text-green-200 text-xs font-medium rounded-full whitespace-nowrap flex-shrink-0">
-                ✅ Confirmado
-              </span>
-            ) : (
-              <span className="px-3 py-1 bg-yellow-500/20 text-yellow-200 text-xs font-medium rounded-full whitespace-nowrap flex-shrink-0">
-                ⏳ Pendiente
-              </span>
-            )}
-          </div>
-
-          {/* Info Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-            <div className="bg-white/5 rounded-lg p-2">
-              <div className="text-white/50 text-xs mb-1">Personas</div>
-              <div className="text-white font-semibold">{totalPersonas}</div>
-            </div>
-            <div className="bg-white/5 rounded-lg p-2">
-              <div className="text-white/50 text-xs mb-1">Acompañantes</div>
-              <div className="text-white font-semibold">{guest.num_companions || 0}</div>
-            </div>
-            <div className="bg-white/5 rounded-lg p-2">
-              <div className="text-white/50 text-xs mb-1">Costo/Persona</div>
-              <div className="text-white font-semibold">${guest.cost_per_person?.toLocaleString('es-AR') || 0}</div>
-            </div>
-            <div className="bg-white/5 rounded-lg p-2">
-              <div className="text-white/50 text-xs mb-1">Total</div>
-              <div className="text-green-400 font-bold">${costoTotal.toLocaleString('es-AR')}</div>
-            </div>
-          </div>
-
-          {/* Notes */}
-          {guest.notes && (
-            <div className="bg-blue-500/10 border border-blue-400/30 rounded-lg p-3 mb-4">
-              <div className="text-blue-200 text-xs font-medium mb-1">📝 Notas:</div>
-              <p className="text-white/80 text-sm whitespace-pre-wrap">{guest.notes}</p>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <button
-              onClick={() => onEdit(guest)}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all text-sm font-medium"
-            >
-              ✏️ Editar
-            </button>
-            <button
-              onClick={() => onDelete(guest.id)}
-              className="px-4 py-2 bg-red-500/20 text-red-200 rounded-lg hover:bg-red-500/30 transition-all text-sm font-medium"
-            >
-              🗑️ Eliminar
-            </button>
-            <button
-              onClick={() => onCopyLink(guest.guest_code, guest.id)}
-              className={`px-4 py-2 rounded-lg transition-all text-sm font-medium ${
-                isCopied
-                  ? 'bg-green-500/30 text-green-200'
-                  : 'bg-purple-500/20 text-purple-200 hover:bg-purple-500/30'
-              }`}
-            >
-              {isCopied ? '✅ ¡Copiado!' : '🔗 Copiar Link'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-GuestCard.propTypes = {
-  guest: PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    first_name: PropTypes.string.isRequired,
-    last_name: PropTypes.string.isRequired,
-    nickname: PropTypes.string,
-    guest_code: PropTypes.string.isRequired,
-    cost_per_person: PropTypes.number,
-    confirmed: PropTypes.bool,
-    num_companions: PropTypes.number,
-    notes: PropTypes.string,
-    created_at: PropTypes.string,
-  }).isRequired,
-  onEdit: PropTypes.func.isRequired,
-  onDelete: PropTypes.func.isRequired,
-  onCopyLink: PropTypes.func.isRequired,
-  isCopied: PropTypes.bool.isRequired,
 };
 
 const MessageCard = ({ message, onApprove, onDelete, onUnapprove, isPending }) => {
