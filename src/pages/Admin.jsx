@@ -43,7 +43,7 @@ const AdminPanel = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (password === '1234') {
+    if (password === import.meta.env.VITE_APP_ADMIN_PASSWORD) {
       setIsAuthenticated(true);
       localStorage.setItem('adminAuth', 'true');
     } else {
