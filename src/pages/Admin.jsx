@@ -248,7 +248,7 @@ const AdminPanel = () => {
     const typePrefix = previewGuest.num_guests > 1 ? 'ustedes' : 'vos';
     const typePrefix2 = previewGuest.num_guests > 1 ? 'su' : 'tu';
     const typePrefix3 = previewGuest.num_guests > 1 ? 'verlos': 'verte';
-    const message = `¡Hola ${guestName}! 👋\n\n¡Queremos compartir con ${typePrefix} una gran alegria: *la celebracion de nuestra BODA*🤵💍💒👰 \n\nTe enviamos tu invitacion digital, esperamos tu *CONFIRMACION* hasta el *10 de Diciembre*. \n\nNos haria muy felicies ${typePrefix2} presencia ✨ \n\n${url}\n\n¡Esperamos ${typePrefix3} allí! 🎉`;
+    const message = `¡Hola ${guestName}! 👋\n\n¡Queremos compartir con ${typePrefix} una gran alegria: *la celebracion de nuestra BODA*🤵💍💒👰 \n\nTe enviamos la invitacion digital, esperamos ${typePrefix2} *CONFIRMACION* hasta el *10 de Diciembre*. \n\nNos haria muy felicies ${typePrefix2} presencia ✨ \n\n${url}\n\n¡Esperamos ${typePrefix3} allí! 🎉`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     setShowWhatsAppPreview(false);
@@ -1157,7 +1157,7 @@ const AdminPanel = () => {
                     {'\n\n'}
                     Queremos compartir con {previewGuest.num_guests > 1 ? 'ustedes': 'vos'} una gran alegria: <b>la celebracion de nuestra BODA</b>🤵💍💒👰
                     {'\n\n'}
-                    Te enviamos tu 🎫 invitacion digital, esperamos tu <b>CONFIRMACION</b> hasta el <b>10 de Diciembre</b>.
+                    Te enviamos la 🎫 invitacion digital, esperamos {previewGuest.num_guests > 1 ? 'su': 'tu'} <b>CONFIRMACION</b> hasta el <b>10 de Diciembre</b>.
                     {'\n\n'}
                     Nos haria muy Felices {previewGuest.num_guests > 1 ? 'su': 'tu'} presencia ✨
                     {'\n\n'}
