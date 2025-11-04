@@ -1,4 +1,5 @@
-import React, { forwardRef, useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
 import { createPortal } from 'react-dom';
 import supabase from '../../../lib/supabaseClient';
 
@@ -88,6 +89,13 @@ const WishItem = forwardRef(({ name, message, color, createdAt }, ref) => {
   );
 });
 
+WishItem.propTypes = {
+  name: PropTypes.string.isRequired,
+  message: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
+  createdAt: PropTypes.string
+};
+
 WishItem.displayName = 'WishItem';
 
 const colorList = [
@@ -105,12 +113,11 @@ const colorList = [
   '#6366F1', // Indigo
 ];
 
-export default function WishSection() {
+export default function WishSection({ guestName = 'Invitado' }) {
   const lastChildRef = useRef(null);
   const messageCountRef = useRef(0); // Usar ref para evitar problemas de closure
 
   const [data, setData] = useState([]);
-  const [name, setName] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -120,11 +127,6 @@ export default function WishSection() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (name.length < 3) {
-      setError('El nombre debe tener al menos 3 caracteres!');
-      return;
-    }
 
     if (message.length < 10) {
       setError('El mensaje debe tener al menos 10 caracteres!');
@@ -139,7 +141,7 @@ export default function WishSection() {
     const { error } = await supabase
       .from(import.meta.env.VITE_APP_TABLE_NAME) // Replace with your actual table name
       .insert([
-        { name, message: message, color: randomColor }, // Assuming your table has a "name" column
+        { name: guestName, message: message, color: randomColor }, // Usar guestName recibido como prop
       ]);
 
     setLoading(false);
@@ -151,8 +153,7 @@ export default function WishSection() {
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 4000);
       
-      // Limpiar formulario
-      setName('');
+      // Limpiar formulario (solo el mensaje)
       setMessage('');
       
       // Actualizar lista y scroll
@@ -313,19 +314,14 @@ export default function WishSection() {
               </div>
             )}
 
-            <div className="space-y-2">
-              <label className="text-white/90 text-sm font-medium">Nombre</label>
-              <input
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Tu nombre..."
-                className="w-full focus:outline-none focus:ring-2 focus:ring-white/30 px-3 py-2 text-black rounded-lg transition-all"
-              />
-            </div>
+            {/* Mostrar el nombre del invitado */}
+            {/* <div className="bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+              <p className="text-white/60 text-xs">Mensaje de:</p>
+              <p className="text-white font-semibold">{guestName}</p>
+            </div> */}
             
             <div className="space-y-2">
-              <label className="text-white/90 text-sm font-medium">Mensaje</label>
+              {/* <label className="text-white/90 text-sm font-medium">Mensaje</label> */}
               <textarea
                 required
                 value={message}
@@ -349,3 +345,7 @@ export default function WishSection() {
     </>
   );
 }
+
+WishSection.propTypes = {
+  guestName: PropTypes.string
+};

@@ -142,7 +142,7 @@ function DetailInfo({ guestData }) {
           />
 
           {data.show_menu.wish && import.meta.env.VITE_APP_TABLE_NAME ? (
-            <WishSection />
+            <WishSection guestName={guestData?.nickname || guestData?.first_name || 'Invitado'} />
           ) : null}
         </div>
         <Footer />
