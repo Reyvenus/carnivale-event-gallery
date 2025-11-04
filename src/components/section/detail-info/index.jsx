@@ -76,31 +76,6 @@ function DetailInfo({ guestData }) {
             />
           </div>
 
-          {/* Recordatorio de Confirmación */}
-          <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20 border border-purple-400/30 p-4 backdrop-blur-sm">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
-            <div className="relative flex items-start gap-3">
-              <div className="flex-shrink-0 mt-0.5">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500/30 to-pink-500/30 border border-purple-400/40 flex items-center justify-center backdrop-blur-sm">
-                  <span className="text-xl">📅</span>
-                </div>
-              </div>
-              <div className="flex-1 text-left">
-                <h3 className="text-white font-bold text-base mb-1 flex items-center gap-2">
-                  ¡Recordá confirmar tu asistencia!
-                  <span className="text-sm">✨</span>
-                </h3>
-                <p className="text-white/80 text-sm leading-relaxed">
-                  Tenés tiempo hasta el <span className="font-semibold text-pink-300">10 de Diciembre</span> para confirmarnos si venís. 
-                  <span className="block mt-1 text-xs text-white/60">
-                    Nos ayuda un montón a la organizacion 💜
-                  </span>
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Sección de regalos */}
           <div className="space-y-3">
             <div className="text-center space-y-2">
@@ -109,6 +84,12 @@ function DetailInfo({ guestData }) {
               </h2>
               {guestData?.cost_per_person > 0 ? (
                 <>
+                  {/* Label de atención */}
+                  <div className="flex items-center justify-center gap-2 bg-cyan-500/15 border border-cyan-400/40 rounded-lg px-4 py-2 mb-3">
+                    <span className="text-cyan-300 text-sm">📌</span>
+                    <span className="text-cyan-200 text-sm font-medium">Info importante sobre el evento</span>
+                  </div>
+                  
                   <p className="text-sm text-white/80 leading-relaxed px-2">
                     {data.gifts.message}{' '}
                     <span className="font-semibold text-white text-lg">
@@ -165,6 +146,56 @@ function DetailInfo({ guestData }) {
             eventLocation="NIZA EVENTOS"
             eventAddress={data.locations.reception.address}
           />
+
+          {/* Recordatorio de Confirmación */}
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-cyan-500/20 via-cyan-400/20 to-cyan-500/20 border border-cyan-400/30 p-4 backdrop-blur-sm">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-cyan-400/10 rounded-full blur-3xl"></div>
+            <div className="relative flex items-start gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500/30 to-cyan-400/30 border border-cyan-400/40 flex items-center justify-center backdrop-blur-sm">
+                  <span className="text-xl">📅</span>
+                </div>
+              </div>
+              <div className="flex-1 text-left">
+                <h3 className="text-white font-bold text-base mb-1 flex items-center gap-2">
+                  ¡Recordá confirmar tu asistencia!
+                  <span className="text-sm">✨</span>
+                </h3>
+                <p className="text-cyan-200 text-sm leading-relaxed">
+                  Tenés tiempo hasta el <span className="font-semibold text-cyan-300">10 de Diciembre</span> para confirmarnos si venís. 
+                  <span className="block mt-1 text-xs text-cyan-200/70">
+                    Nos ayuda un montón a la organizacion 💜
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Dress Code */}
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-cyan-500/20 via-cyan-400/20 to-cyan-500/20 border border-cyan-400/30 p-4 backdrop-blur-sm">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-cyan-400/10 rounded-full blur-3xl"></div>
+            <div className="relative flex items-start gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500/30 to-cyan-400/30 border border-cyan-400/40 flex items-center justify-center backdrop-blur-sm">
+                  <span className="text-xl">👔</span>
+                </div>
+              </div>
+              <div className="flex-1 text-left">
+                <h3 className="text-white font-bold text-base mb-1 flex items-center gap-2">
+                  Dress Code
+                  <span className="text-sm">✨</span>
+                </h3>
+                <p className="text-cyan-200 text-sm leading-relaxed">
+                  Por favor, asistí con <span className="font-semibold text-cyan-300">Media Gala</span>
+                  <span className="block mt-1 text-xs text-cyan-200/70">
+                    Queremos que todos luzcan increíbles 💫
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
 
           {data.show_menu.wish && import.meta.env.VITE_APP_TABLE_NAME ? (
             <WishSection guestName={guestData?.nickname || guestData?.first_name || 'Invitado'} />

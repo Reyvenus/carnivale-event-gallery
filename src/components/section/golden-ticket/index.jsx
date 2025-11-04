@@ -159,7 +159,7 @@ export default function GoldenTicket({
       {/* Toast cuando el ticket no está disponible */}
       {showToast && createPortal(
         <div className="fixed top-0 left-0 right-0 z-[9999] animate-fade-in-up">
-          <div className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-4 py-4 shadow-2xl">
+          <div className="bg-gradient-to-r from-cyan-500 to-cyan-400 text-white px-4 py-4 shadow-2xl">
             <div className="max-w-sm mx-auto flex items-center justify-center gap-3">
               <div className="flex-shrink-0 bg-white/20 rounded-full p-1">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
