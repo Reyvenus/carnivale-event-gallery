@@ -1643,7 +1643,7 @@ const MessageCard = ({ message, onApprove, onDelete, onUnapprove, isPending }) =
             <div className="flex-1 min-w-0">
               <h3 className="text-white font-bold text-lg break-words">{message.name}</h3>
               <p className="text-white/50 text-xs">
-                📅 {formatDate(message.created_at)}
+                📅 {formatDate(message.created_at)} {message.deleted && <span className="text-red-400">(Eliminado)</span>}
               </p>
             </div>
             {isPending ? (
@@ -1698,6 +1698,7 @@ MessageCard.propTypes = {
     message: PropTypes.string.isRequired,
     color: PropTypes.string,
     created_at: PropTypes.string,
+    deleted: PropTypes.bool,
   }).isRequired,
   onApprove: PropTypes.func,
   onDelete: PropTypes.func.isRequired,
