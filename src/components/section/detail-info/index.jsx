@@ -165,7 +165,7 @@ function DetailInfo({ guestData }) {
                 <p className="text-cyan-200 text-sm leading-relaxed">
                   Tenés tiempo hasta el <span className="font-semibold text-cyan-300">10 de Diciembre</span> para confirmarnos si venís. 
                   <span className="block mt-1 text-xs text-cyan-200/70">
-                    Nos ayuda un montón a la organizacion 💜
+                    Nos ayuda a la organizacion de la Boda 💜
                   </span>
                 </p>
               </div>
@@ -188,10 +188,7 @@ function DetailInfo({ guestData }) {
                   <span className="text-sm">✨</span>
                 </h3>
                 <p className="text-cyan-200 text-sm leading-relaxed">
-                  Por favor, asistí con <span className="font-semibold text-cyan-300">Media Gala</span>
-                  <span className="block mt-1 text-xs text-cyan-200/70">
-                    Queremos que todos luzcan increíbles 💫
-                  </span>
+                  <span className="font-semibold text-cyan-300">Media Gala</span>
                 </p>
               </div>
             </div>
