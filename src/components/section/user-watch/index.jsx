@@ -43,7 +43,7 @@ export default function UserWatch({ onClick, guestData }) {
         alt="boda-ivi-coco"
       />
       <div>
-        <p className="mb-10 text-2xl">Quien es el Invitado?</p>
+        <p className="mb-10 text-2xl">Quien and allí?</p>
         <div onClick={handleClick} className="group cursor-pointer">
           <img
             className="mx-auto group-hover:scale-125 transition-transform duration-300"
