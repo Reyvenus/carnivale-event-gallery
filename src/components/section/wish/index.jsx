@@ -517,13 +517,13 @@ export default function WishSection({ guestName = 'Invitado' }) {
                 />
               </div>
               
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-3 pt-2">
                 <button
                   onClick={handleSaveEdit}
                   disabled={loading}
-                  className="flex-1 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2.5 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-all text-sm font-medium border border-blue-400/30 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? '💾 Guardando...' : '💾 Guardar Cambios'}
+                  {loading ? 'Guardando...' : 'Guardar'}
                 </button>
                 <button
                   onClick={() => {
@@ -532,7 +532,7 @@ export default function WishSection({ guestName = 'Invitado' }) {
                     setError(null);
                   }}
                   disabled={loading}
-                  className="px-4 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all font-semibold"
+                  className="px-4 py-2.5 bg-white/5 text-white/70 rounded-lg hover:bg-white/10 hover:text-white transition-all text-sm font-medium border border-white/10"
                 >
                   Cancelar
                 </button>
@@ -588,13 +588,13 @@ export default function WishSection({ guestName = 'Invitado' }) {
                 ¿Estás seguro de que deseas eliminar este mensaje? Esta acción no se puede deshacer.
               </p>
               
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-3 pt-2">
                 <button
                   onClick={handleConfirmDelete}
                   disabled={loading}
-                  className="flex-1 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2.5 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition-all text-sm font-medium border border-red-400/30 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? '🗑️ Eliminando...' : '🗑️ Sí, Eliminar'}
+                  {loading ? 'Eliminando...' : 'Eliminar'}
                 </button>
                 <button
                   onClick={() => {
@@ -602,7 +602,7 @@ export default function WishSection({ guestName = 'Invitado' }) {
                     setDeletingMessageId(null);
                   }}
                   disabled={loading}
-                  className="px-4 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all font-semibold"
+                  className="px-4 py-2.5 bg-white/5 text-white/70 rounded-lg hover:bg-white/10 hover:text-white transition-all text-sm font-medium border border-white/10"
                 >
                   Cancelar
                 </button>
