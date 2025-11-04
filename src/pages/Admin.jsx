@@ -245,9 +245,10 @@ const AdminPanel = () => {
     if (!previewGuest) return;
     const url = `${window.location.origin}?code=${encodeURIComponent(previewGuest.guest_code)}`;
     const guestName = previewGuest.nickname || previewGuest.first_name;
-    const typePrefix = previewGuest.num_guests > 1 ? 'su' : 'tu';
-    const typePrefix2 = previewGuest.num_guests > 1 ? 'verlos': 'verte';
-    const message = `¡Hola ${guestName}! 👋\n\n¡Queremos compartir con vos una gran alegria: *la celebracion de nuestra BODA*🤵💍💒👰 \n\nTe enviamos tu invitacion digital, esperamos tu CONFIRMACION hasta el *10 de Diciembre*. \n\nNos haria muy felicies ${typePrefix} presencia ✨ \n\n${url}\n\n¡Esperamos ${typePrefix2} allí! 🎉`;
+    const typePrefix = previewGuest.num_guests > 1 ? 'ustedes' : 'vos';
+    const typePrefix2 = previewGuest.num_guests > 1 ? 'su' : 'tu';
+    const typePrefix3 = previewGuest.num_guests > 1 ? 'verlos': 'verte';
+    const message = `¡Hola ${guestName}! 👋\n\n¡Queremos compartir con ${typePrefix} una gran alegria: *la celebracion de nuestra BODA*🤵💍💒👰 \n\nTe enviamos tu invitacion digital, esperamos tu *CONFIRMACION* hasta el *10 de Diciembre*. \n\nNos haria muy felicies ${typePrefix2} presencia ✨ \n\n${url}\n\n¡Esperamos ${typePrefix3} allí! 🎉`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     setShowWhatsAppPreview(false);
@@ -1154,9 +1155,9 @@ const AdminPanel = () => {
                   <div className="text-white text-sm whitespace-pre-wrap leading-relaxed">
                     ¡Hola {previewGuest.nickname || previewGuest.first_name}! 👋
                     {'\n\n'}
-                    Queremos compartir con vos una gran alegria: <b>la celebracion de nuestra BODA</b>🤵💍💒👰
+                    Queremos compartir con {previewGuest.num_guests > 1 ? 'ustedes': 'vos'} una gran alegria: <b>la celebracion de nuestra BODA</b>🤵💍💒👰
                     {'\n\n'}
-                    Te enviamos tu 🎫 invitacion digital, esperamos tu CONFIRMACION hasta el <b>10 de Diciembre</b>.
+                    Te enviamos tu 🎫 invitacion digital, esperamos tu <b>CONFIRMACION</b> hasta el <b>10 de Diciembre</b>.
                     {'\n\n'}
                     Nos haria muy Felices {previewGuest.num_guests > 1 ? 'su': 'tu'} presencia ✨
                     {'\n\n'}
