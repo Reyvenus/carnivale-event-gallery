@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import supabase from '../lib/supabaseClient';
 
+import data from '../data/config.json';
+
 const AdminPanel = () => {
   const [pendingMessages, setPendingMessages] = useState([]);
   const [approvedMessages, setApprovedMessages] = useState([]);
@@ -243,13 +245,22 @@ const AdminPanel = () => {
 
   const confirmSendWhatsApp = () => {
     if (!previewGuest) return;
+
+    let cbu = data.gifts.groom.cbu;
+    if (previewGuest.guest_from === 'wife') {
+      cbu = data.gifts.bride.cbu;
+    }
+
     const url = `${window.location.origin}?code=${encodeURIComponent(previewGuest.guest_code)}`;
     const guestName = previewGuest.nickname || previewGuest.first_name;
     const typePrefix = previewGuest.num_guests > 1 ? 'ustedes' : 'vos';
     const typePrefix1 = previewGuest.num_guests > 1 ? 'Les enviamos': 'Te enviamos';
     const typePrefix2 = previewGuest.num_guests > 1 ? 'su' : 'tu';
     const typePrefix3 = previewGuest.num_guests > 1 ? 'verlos': 'verte';
-    const message = `¡Hola ${guestName}! 👋\n\n¡Queremos compartir con ${typePrefix} una gran alegria: *la celebracion de nuestra BODA*🤵💍💒👰 \n\n${typePrefix1} la invitacion digital, esperamos ${typePrefix2} *CONFIRMACION* hasta el *10 de Diciembre*. \n\nNos haria muy felices ${typePrefix2} presencia ✨ \n\n${url}\n\n¡Esperamos ${typePrefix3} allí! 🎉`;
+    // const message = `¡Hola ${guestName}! 👋\n\n¡Queremos compartir con ${typePrefix} una gran alegria: *la celebracion de nuestra BODA*🤵💍💒👰 \n\n${typePrefix1} la invitacion digital, esperamos ${typePrefix2} *CONFIRMACION* hasta el *10 de Diciembre*. \n\nNos haria muy felices ${typePrefix2} presencia ✨ \n\n${url}\n\n¡Esperamos ${typePrefix3} allí! 🎉`;
+
+    const message = `¡Hola Querida Familia y Amigo/as! 👋! 👋\n\n¡Queremos recordarles que ya estamos en fecha de *CONFIRMAR* su *PRESENCIA* \n\nEsto es muy importante para la organizacion de la *Boda* ya que tenemos que cerrar el contrato del evento. \n\nAgradecemos que nos confirmen como ÚLTIMA FECHA hasta el dia MIERCOLES 17 de Diciembre \n\nLes enviamos por aqui, para quienes tuvieron inconvenientes, el alias/cbu: \n\n*${cbu}*  \n\nInvitacion digital: \n\n${url}`;
+
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     setShowWhatsAppPreview(false);
