@@ -263,7 +263,7 @@ const AdminPanel = () => {
     const typePrefix3 = previewGuest.num_guests > 1 ? 'verlos': 'verte';
     // const message = `¡Hola ${guestName}! 👋\n\n¡Queremos compartir con ${typePrefix} una gran alegria: *la celebracion de nuestra BODA*🤵💍💒👰 \n\n${typePrefix1} la invitacion digital, esperamos ${typePrefix2} *CONFIRMACION* hasta el *10 de Diciembre*. \n\nNos haria muy felices ${typePrefix2} presencia ✨ \n\n${url}\n\n¡Esperamos ${typePrefix3} allí! 🎉`;
 
-    const message = `¡Hola Querida Familia y Amigo/as! 👋! 👋\n\n¡Queremos recordarles que ya estamos en fecha de *CONFIRMAR* su *PRESENCIA* \n\nEsto es muy importante para la organizacion de la *Boda* ya que tenemos que cerrar el contrato del evento. \n\nAgradecemos que nos confirmen como *ÚLTIMA FECHA* hasta el dia *MIERCOLES 17 de Diciembre* \n\nLes enviamos por aqui, para quienes tuvieron inconvenientes, el alias/cbu: \n\n*Alias*: ${alias} \n*CBU*: ${cbu}\n*name*:${name}  \n\nInvitacion digital para mas detalles: \n\n${url}`;
+    const message = `¡Hola Querida Familia y Amigo/as! 👋! 👋\n\n¡Queremos recordarles que ya estamos en fecha de *CONFIRMAR* su *PRESENCIA* \nEsto es muy importante para la organizacion de la *Boda* ya que tenemos que cerrar el contrato del evento. \nAgradecemos que nos confirmen como *ÚLTIMA FECHA* hasta el dia *MIERCOLES 17 de Diciembre* \n\nLes enviamos por aqui, para quienes tuvieron inconvenientes, el alias/cbu: \n*Alias*: ${alias} \n*CBU*: ${cbu}\n*name*:${name}  \n\nInvitacion digital para mas detalles: \n${url}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     setShowWhatsAppPreview(false);
@@ -1198,13 +1198,13 @@ const AdminPanel = () => {
                     ¡Hola Querida Familia y Amigo/as! 👋! 👋
                     {'\n\n'}
                     ¡Queremos recordarles que ya estamos en fecha de <b>CONFIRMAR</b> su <b>PRESENCIA</b>
-                    {'\n\n'}
+                    {'\n'}
                     Esto es muy importante para la organizacion de la <b>Boda</b> ya que tenemos que cerrar el contrato del evento.
-                    {'\n\n'}
+                    {'\n'}
                     Agradecemos que nos confirmen como <b>ÚLTIMA FECHA</b> hasta el dia <b>MIERCOLES 17 de Diciembre</b>
                     {'\n\n'}
                     Les enviamos por aqui, para quienes tuvieron inconvenientes, el alias/cbu:
-                    {'\n\n'}
+                    {'\n'}
                     <b>Alias</b>: {previewGuest.guest_from === 'wife' ? data.gifts.bride.alias : data.gifts.groom.alias}
                     {'\n'}
                     <b>CBU</b>: {previewGuest.guest_from === 'wife' ? data.gifts.bride.cbu : data.gifts.groom.cbu}
@@ -1212,7 +1212,7 @@ const AdminPanel = () => {
                     <b>name</b>: {previewGuest.guest_from === 'wife' ? data.gifts.bride.name : data.gifts.groom.name}
                     {'\n\n'}
                     Invitacion digital para mas detalles:
-                    {'\n\n'}
+                    {'\n'}
                     <a 
                       href={`${window.location.origin}?code=${previewGuest.guest_code}`}
                       target="_blank"
