@@ -1001,13 +1001,6 @@ const AdminPanel = () => {
                                       </button>
                                     )}
                                     <button
-                                      onClick={() => handleEditGuest(guest)}
-                                      className="p-1.5 bg-blue-500/20 text-blue-200 rounded-lg hover:bg-blue-500/30 active:scale-95 transition-all text-sm"
-                                      title="Editar"
-                                    >
-                                      ✏️
-                                    </button>
-                                    <button
                                       onClick={() => handleToggleConfirmation(guest)}
                                       className={`p-1.5 rounded-lg active:scale-95 transition-all text-sm ${
                                         guest.confirmed 
@@ -1017,6 +1010,13 @@ const AdminPanel = () => {
                                       title={guest.confirmed ? 'Marcar como pendiente' : 'Confirmar asistencia'}
                                     >
                                       {guest.confirmed ? '⏳' : '✅'}
+                                    </button>
+                                    <button
+                                      onClick={() => handleEditGuest(guest)}
+                                      className="p-1.5 bg-blue-500/20 text-blue-200 rounded-lg hover:bg-blue-500/30 active:scale-95 transition-all text-sm"
+                                      title="Editar"
+                                    >
+                                      ✏️
                                     </button>
                                   </div>
                                 </td>
