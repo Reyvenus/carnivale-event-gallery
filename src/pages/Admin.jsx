@@ -723,7 +723,7 @@ const AdminPanel = () => {
                         ✅
                       </div>
                       <div className="text-white text-xl font-bold">
-                        {guests.filter(g => g.confirmed).length}
+                        {guests.filter(g => g.confirmed).reduce((sum, g) => sum + (g.num_guests || 0), 0)}
                       </div>
                       <div className="text-green-200 text-xs font-medium mt-0.5">Confirmados</div>
                     </div>
