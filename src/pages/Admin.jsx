@@ -238,6 +238,20 @@ const AdminPanel = () => {
     });
   };
 
+  const handleToggleConfirmation = async (guest) => {
+    const newConfirmedStatus = !guest.confirmed;
+    const { error } = await supabase
+      .from(import.meta.env.VITE_GUESTS_TABLE_NAME)
+      .update({ confirmed: newConfirmedStatus })
+      .eq('id', guest.id);
+
+    if (!error) {
+      fetchGuests(true); // Actualizar sin mostrar loading
+    } else {
+      alert('❌ Error al actualizar: ' + error.message);
+    }
+  };
+
   const handleSendWhatsApp = (guest) => {
     setPreviewGuest(guest);
     setShowWhatsAppPreview(true);
@@ -992,6 +1006,17 @@ const AdminPanel = () => {
                                       title="Editar"
                                     >
                                       ✏️
+                                    </button>
+                                    <button
+                                      onClick={() => handleToggleConfirmation(guest)}
+                                      className={`p-1.5 rounded-lg active:scale-95 transition-all text-sm ${
+                                        guest.confirmed 
+                                          ? 'bg-yellow-500/20 text-yellow-200 hover:bg-yellow-500/30' 
+                                          : 'bg-green-500/20 text-green-200 hover:bg-green-500/30'
+                                      }`}
+                                      title={guest.confirmed ? 'Marcar como pendiente' : 'Confirmar asistencia'}
+                                    >
+                                      {guest.confirmed ? '⏳' : '✅'}
                                     </button>
                                   </div>
                                 </td>
