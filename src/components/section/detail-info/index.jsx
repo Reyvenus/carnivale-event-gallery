@@ -115,6 +115,9 @@ function DetailInfo({ guestData }) {
                 </div>
               )}
             </div>
+            <h2 className="text-xl font-bold text-white mb-2">
+              ✅ Datos Bancarios <small>(hacer cick)</small>
+            </h2>
             <GiftAccordion
               name={data.gifts.groom.name}
               bankName={data.gifts.groom.bankName}
