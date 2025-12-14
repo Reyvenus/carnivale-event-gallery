@@ -115,8 +115,8 @@ function DetailInfo({ guestData }) {
                 </div>
               )}
             </div>
-            <h4 className="text-xl font-bold text-white mb-2">
-              ✅ Datos Bancarios <small>(hacer cick)</small>
+            <h4 className="text-base font-semibold text-white mb-2">
+              ✅ Datos Bancarios <small>(hacer click)</small>
             </h4>
             <GiftAccordion
               name={data.gifts.groom.name}
