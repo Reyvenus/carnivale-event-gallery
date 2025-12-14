@@ -722,7 +722,7 @@ const AdminPanel = () => {
                         💵
                       </div>
                       <div className="text-white text-base font-bold">
-                        ${(guests.reduce((sum, g) => sum + (g.num_guests || 0), 0) * 112000).toLocaleString('es-AR')}
+                        ${(guests.reduce((sum, g) => sum + (g.num_guests || 0), 0) * 104000).toLocaleString('es-AR')}
                       </div>
                       <div className="text-blue-200 text-xs font-medium mt-0.5">Costo Total</div>
                     </div>
