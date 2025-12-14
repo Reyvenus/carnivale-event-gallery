@@ -669,11 +669,13 @@ const AdminPanel = () => {
                   {/* Row 1: Invitados */}
                   <div className="flex items-center justify-around gap-3 pb-3 mb-3 border-b border-white/10">
                     <div className="text-center">
-                      <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-blue-500/30 to-blue-600/30 flex items-center justify-center text-2xl border border-blue-400/30">
-                        👥
+                      <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-purple-500/30 to-purple-600/30 flex items-center justify-center text-2xl border border-purple-400/30">
+                        🎉
                       </div>
-                      <div className="text-white text-xl font-bold">{guests.length}</div>
-                      <div className="text-blue-200 text-xs font-medium mt-0.5">Invitados</div>
+                      <div className="text-white text-xl font-bold">
+                        {guests.reduce((sum, g) => sum + (g.num_guests || 0), 0)}
+                      </div>
+                      <div className="text-purple-200 text-xs font-medium mt-0.5">Personas</div>
                     </div>
                     
                     <div className="w-px h-12 bg-white/20"></div>
@@ -683,7 +685,7 @@ const AdminPanel = () => {
                         👰
                       </div>
                       <div className="text-white text-xl font-bold">
-                        {guests.filter(g => g.guest_from === 'wife').length}
+                        {guests.filter(g => g.guest_from === 'wife').reduce((sum, g) => sum + (g.num_guests || 0), 0)}
                       </div>
                       <div className="text-pink-200 text-xs font-medium mt-0.5">Novia</div>
                     </div>
@@ -695,26 +697,11 @@ const AdminPanel = () => {
                         🤵
                       </div>
                       <div className="text-white text-xl font-bold">
-                        {guests.filter(g => g.guest_from === 'husband').length}
+                        {guests.filter(g => g.guest_from === 'husband').reduce((sum, g) => sum + (g.num_guests || 0), 0)}
                       </div>
                       <div className="text-cyan-200 text-xs font-medium mt-0.5">Novio</div>
                     </div>
-                    
-                    <div className="w-px h-12 bg-white/20"></div>
-                    
-                    <div className="text-center">
-                      <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-purple-500/30 to-purple-600/30 flex items-center justify-center text-2xl border border-purple-400/30">
-                        🎉
-                      </div>
-                      <div className="text-white text-xl font-bold">
-                        {guests.reduce((sum, g) => sum + (g.num_guests || 0), 0)}
-                      </div>
-                      <div className="text-purple-200 text-xs font-medium mt-0.5">Personas</div>
-                    </div>
-                  </div>
 
-                  {/* Row 2: Confirmados y Dinero */}
-                  <div className="flex items-center justify-around gap-3">
                     <div className="text-center">
                       <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-green-500/30 to-green-600/30 flex items-center justify-center text-2xl border border-green-400/30">
                         ✅
@@ -726,6 +713,22 @@ const AdminPanel = () => {
                     </div>
                     
                     <div className="w-px h-12 bg-white/20"></div>
+                  </div>
+
+                  {/* Row 2: Confirmados y Dinero */}
+                  <div className="flex items-center justify-around gap-3">
+                    
+                    <div className="w-px h-12 bg-white/20"></div>
+
+                    <div className="text-center flex-1">
+                      <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-emerald-500/30 to-emerald-600/30 flex items-center justify-center text-2xl border border-emerald-400/30">
+                        💲
+                      </div>
+                      <div className="text-white text-base font-bold">
+                        ${(guests.reduce((sum, g) => sum + (g.num_guests || 0), 0) * 112000).toLocaleString('es-AR')}
+                      </div>
+                      <div className="text-emerald-200 text-xs font-medium mt-0.5">Costo Total</div>
+                    </div>
                     
                     <div className="text-center flex-1">
                       <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-emerald-500/30 to-emerald-600/30 flex items-center justify-center text-2xl border border-emerald-400/30">
@@ -1560,7 +1563,7 @@ const AdminPanel = () => {
                 </div>
                 <div>
                   <label className="text-white/90 text-sm font-medium block mb-2">
-                    Nº Acompañantes
+                    Nº Personas
                   </label>
                   <input
                     type="number"
