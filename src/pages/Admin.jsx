@@ -247,8 +247,12 @@ const AdminPanel = () => {
     if (!previewGuest) return;
 
     let cbu = data.gifts.groom.cbu;
+    let alias = data.gifts.groom.alias;
+    let name = data.gifts.groom.name;
     if (previewGuest.guest_from === 'wife') {
       cbu = data.gifts.bride.cbu;
+      alias = data.gifts.bride.alias;
+      name = data.gifts.bride.name;
     }
 
     const url = `${window.location.origin}?code=${encodeURIComponent(previewGuest.guest_code)}`;
@@ -259,8 +263,7 @@ const AdminPanel = () => {
     const typePrefix3 = previewGuest.num_guests > 1 ? 'verlos': 'verte';
     // const message = `¡Hola ${guestName}! 👋\n\n¡Queremos compartir con ${typePrefix} una gran alegria: *la celebracion de nuestra BODA*🤵💍💒👰 \n\n${typePrefix1} la invitacion digital, esperamos ${typePrefix2} *CONFIRMACION* hasta el *10 de Diciembre*. \n\nNos haria muy felices ${typePrefix2} presencia ✨ \n\n${url}\n\n¡Esperamos ${typePrefix3} allí! 🎉`;
 
-    const message = `¡Hola Querida Familia y Amigo/as! 👋! 👋\n\n¡Queremos recordarles que ya estamos en fecha de *CONFIRMAR* su *PRESENCIA* \n\nEsto es muy importante para la organizacion de la *Boda* ya que tenemos que cerrar el contrato del evento. \n\nAgradecemos que nos confirmen como ÚLTIMA FECHA hasta el dia MIERCOLES 17 de Diciembre \n\nLes enviamos por aqui, para quienes tuvieron inconvenientes, el alias/cbu: \n\n*${cbu}*  \n\nInvitacion digital: \n\n${url}`;
-
+    const message = `¡Hola Querida Familia y Amigo/as! 👋! 👋\n\n¡Queremos recordarles que ya estamos en fecha de *CONFIRMAR* su *PRESENCIA* \n\nEsto es muy importante para la organizacion de la *Boda* ya que tenemos que cerrar el contrato del evento. \n\nAgradecemos que nos confirmen como *ÚLTIMA FECHA* hasta el dia *MIERCOLES 17 de Diciembre* \n\nLes enviamos por aqui, para quienes tuvieron inconvenientes, el alias/cbu: \n\n*Alias*: ${alias} \n*CBU*: ${cbu}\n*name*:${name}  \n\nInvitacion digital para mas detalles: \n\n${url}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     setShowWhatsAppPreview(false);
@@ -1161,7 +1164,7 @@ const AdminPanel = () => {
               </div>
 
               {/* Message Preview */}
-              <div>
+              {/* <div>
                 <div className="text-white/60 text-xs mb-2">Vista previa del mensaje:</div>
                 <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
                   <div className="text-white text-sm whitespace-pre-wrap leading-relaxed">
@@ -1183,6 +1186,41 @@ const AdminPanel = () => {
                     </a>
                     {'\n\n'}
                     ¡Esperamos {previewGuest.num_guests > 1 ? 'verlos': 'verte'} allí! 🎉
+                  </div>
+                </div>
+              </div> */}
+
+              {/* New Message Preview - Recordatorio con datos bancarios */}
+              <div>
+                <div className="text-white/60 text-xs mb-2">Vista previa del mensaje nuevo (Recordatorio):</div>
+                <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4">
+                  <div className="text-white text-sm whitespace-pre-wrap leading-relaxed">
+                    ¡Hola Querida Familia y Amigo/as! 👋! 👋
+                    {'\n\n'}
+                    ¡Queremos recordarles que ya estamos en fecha de <b>CONFIRMAR</b> su <b>PRESENCIA</b>
+                    {'\n\n'}
+                    Esto es muy importante para la organizacion de la <b>Boda</b> ya que tenemos que cerrar el contrato del evento.
+                    {'\n\n'}
+                    Agradecemos que nos confirmen como <b>ÚLTIMA FECHA</b> hasta el dia <b>MIERCOLES 17 de Diciembre</b>
+                    {'\n\n'}
+                    Les enviamos por aqui, para quienes tuvieron inconvenientes, el alias/cbu:
+                    {'\n\n'}
+                    <b>Alias</b>: {previewGuest.guest_from === 'wife' ? data.gifts.bride.alias : data.gifts.groom.alias}
+                    {'\n'}
+                    <b>CBU</b>: {previewGuest.guest_from === 'wife' ? data.gifts.bride.cbu : data.gifts.groom.cbu}
+                    {'\n'}
+                    <b>name</b>: {previewGuest.guest_from === 'wife' ? data.gifts.bride.name : data.gifts.groom.name}
+                    {'\n\n'}
+                    Invitacion digital para mas detalles:
+                    {'\n\n'}
+                    <a 
+                      href={`${window.location.origin}?code=${previewGuest.guest_code}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-cyan-400 font-mono text-xs break-all hover:text-cyan-300 underline transition-colors"
+                    >
+                      {window.location.origin}?code={previewGuest.guest_code}
+                    </a>
                   </div>
                 </div>
               </div>
