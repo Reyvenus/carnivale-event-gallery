@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import supabase from '../lib/supabaseClient';
@@ -6,6 +7,7 @@ import supabase from '../lib/supabaseClient';
 import data from '../data/config.json';
 
 const AdminPanel = () => {
+  const navigate = useNavigate();
   const [pendingMessages, setPendingMessages] = useState([]);
   const [approvedMessages, setApprovedMessages] = useState([]);
   const [guests, setGuests] = useState([]);
@@ -58,7 +60,7 @@ const AdminPanel = () => {
     if (!silent) {
       setLoading(true);
     }
-    
+
     // Mensajes pendientes
     const { data: pending, error: pendingError } = await supabase
       .from(import.meta.env.VITE_APP_TABLE_NAME)
@@ -75,7 +77,7 @@ const AdminPanel = () => {
 
     if (!pendingError) setPendingMessages(pending || []);
     if (!approvedError) setApprovedMessages(approved || []);
-    
+
     if (!silent) {
       setLoading(false);
     }
@@ -111,7 +113,7 @@ const AdminPanel = () => {
     if (!silent) {
       setLoading(true);
     }
-    
+
     const { data, error } = await supabase
       .from(import.meta.env.VITE_GUESTS_TABLE_NAME)
       .select('*')
@@ -124,7 +126,7 @@ const AdminPanel = () => {
     } else {
       console.error('Error fetching guests:', error);
     }
-    
+
     if (!silent) {
       setLoading(false);
     }
@@ -133,10 +135,10 @@ const AdminPanel = () => {
   const generateGuestCode = (firstName, lastName) => {
     // Obtener las 2 primeras letras del nombre en mayúsculas
     const prefix = firstName.substring(0, 2).toUpperCase();
-    
+
     // Crear un string con el nombre completo
     const fullName = `${firstName} ${lastName}`.toLowerCase();
-    
+
     // Generar un hash simple pero único basado en el nombre completo y timestamp
     let hash = 0;
     const str = fullName + Date.now();
@@ -145,16 +147,16 @@ const AdminPanel = () => {
       hash = ((hash << 5) - hash) + char;
       hash = hash & hash; // Convert to 32bit integer
     }
-    
+
     // Convertir a hexadecimal y tomar 10 caracteres
     const hexHash = Math.abs(hash).toString(16).toUpperCase().padStart(10, '0').substring(0, 10);
-    
+
     return `${prefix}-${hexHash}`;
   };
 
   const handleSaveGuest = async (e) => {
     e.preventDefault();
-    
+
     if (editingGuest) {
       // Actualizar invitado existente
       const { error } = await supabase
@@ -178,7 +180,7 @@ const AdminPanel = () => {
         ...guestForm,
         guest_code: guestCode
       };
-      
+
       const { error } = await supabase
         .from(import.meta.env.VITE_GUESTS_TABLE_NAME)
         .insert([newGuest]);
@@ -272,9 +274,9 @@ const AdminPanel = () => {
     const url = `${window.location.origin}?code=${encodeURIComponent(previewGuest.guest_code)}`;
     const guestName = previewGuest.nickname || previewGuest.first_name;
     const typePrefix = previewGuest.num_guests > 1 ? 'ustedes' : 'vos';
-    const typePrefix1 = previewGuest.num_guests > 1 ? 'Les enviamos': 'Te enviamos';
+    const typePrefix1 = previewGuest.num_guests > 1 ? 'Les enviamos' : 'Te enviamos';
     const typePrefix2 = previewGuest.num_guests > 1 ? 'su' : 'tu';
-    const typePrefix3 = previewGuest.num_guests > 1 ? 'verlos': 'verte';
+    const typePrefix3 = previewGuest.num_guests > 1 ? 'verlos' : 'verte';
     // const message = `¡Hola ${guestName}! 👋\n\n¡Queremos compartir con ${typePrefix} una gran alegria: *la celebracion de nuestra BODA*🤵💍💒👰 \n\n${typePrefix1} la invitacion digital, esperamos ${typePrefix2} *CONFIRMACION* hasta el *10 de Diciembre*. \n\nNos haria muy felices ${typePrefix2} presencia ✨ \n\n${url}\n\n¡Esperamos ${typePrefix3} allí! 🎉`;
 
     const message = `¡Hola Querida Familia y Amigo/as! 👋! 👋\n\n¡Queremos recordarles que ya estamos en fecha de *CONFIRMAR* su *PRESENCIA* ya que tenemos que cerrar el contrato del evento. \nAgradecemos que nos confirmen como *ÚLTIMA FECHA* hasta el dia *MIERCOLES 17 de Diciembre* \n\nLes enviamos por aqui, para quienes tuvieron inconvenientes, el alias/cbu: \n*Alias*: ${alias} \n*CBU*: ${cbu}\n*name*:${name}  \n\nInvitacion digital: \n${url}`;
@@ -361,20 +363,20 @@ const AdminPanel = () => {
   const filteredGuests = guests.filter(guest => {
     // Filtro de búsqueda
     const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = !searchTerm || 
+    const matchesSearch = !searchTerm ||
       guest.first_name?.toLowerCase().includes(searchLower) ||
       guest.last_name?.toLowerCase().includes(searchLower) ||
       guest.nickname?.toLowerCase().includes(searchLower) ||
       guest.guest_code?.toLowerCase().includes(searchLower);
 
     // Filtro de confirmación
-    const matchesConfirmed = 
+    const matchesConfirmed =
       filterConfirmed === 'all' ||
       (filterConfirmed === 'confirmed' && guest.confirmed) ||
       (filterConfirmed === 'pending' && !guest.confirmed);
 
     // Filtro de lado (wife/husband)
-    const matchesGuestFrom = 
+    const matchesGuestFrom =
       filterGuestFrom === 'all' ||
       guest.guest_from === filterGuestFrom;
 
@@ -435,13 +437,13 @@ const AdminPanel = () => {
       // Carga inicial con loading
       fetchMessages(false);
       fetchGuests(false);
-      
+
       // Auto-refresh cada 30 segundos (silencioso, sin loading)
       const interval = setInterval(() => {
         fetchMessages(true);  // true = modo silencioso
         fetchGuests(true);    // true = modo silencioso
       }, 30000);
-      
+
       return () => clearInterval(interval);
     }
   }, [isAuthenticated, fetchGuests]);
@@ -516,13 +518,13 @@ const AdminPanel = () => {
             {showUserMenu && (
               <>
                 {/* Backdrop to close menu */}
-                <div 
-                  className="fixed inset-0 z-[9998]" 
+                <div
+                  className="fixed inset-0 z-[9998]"
                   onClick={() => setShowUserMenu(false)}
                 />
-                
+
                 {/* Menu */}
-                <div 
+                <div
                   className="absolute right-0 mt-3 w-56 bg-gradient-to-br from-gray-900/95 via-black/95 to-gray-900/95 backdrop-blur-xl rounded-xl border border-white/20 shadow-2xl overflow-hidden z-[9999]"
                   style={{ animation: 'slideDown 0.2s ease-out' }}
                 >
@@ -538,7 +540,7 @@ const AdminPanel = () => {
                       }
                     }
                   `}</style>
-                  
+
                   {/* Header */}
                   <div className="p-4 border-b border-white/10 bg-gradient-to-r from-purple-500/10 to-pink-500/10">
                     <div className="flex items-center gap-3">
@@ -554,9 +556,25 @@ const AdminPanel = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Menu Items */}
                   <div className="p-2">
+                    <button
+                      onClick={() => {
+                        navigate('/admin/media');
+                        setShowUserMenu(false);
+                      }}
+                      className="w-full px-3 py-2.5 rounded-lg text-left text-white/80 hover:bg-purple-500/20 hover:text-purple-200 transition-all flex items-center gap-3 text-sm group mb-1"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/20 transition-all">
+                        <span className="text-sm">📸</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">Multimedia</p>
+                        <p className="text-[10px] text-white/40 group-hover:text-purple-200/60 transition-colors">Subir fotos</p>
+                      </div>
+                    </button>
+
                     <button
                       onClick={() => {
                         localStorage.removeItem('adminAuth');
@@ -587,18 +605,16 @@ const AdminPanel = () => {
           <div className="flex items-center gap-0.5 border-b border-white/20">
             <button
               onClick={() => setActiveTab('guests')}
-              className={`flex-1 py-2.5 text-xs font-medium transition-all relative ${
-                activeTab === 'guests'
-                  ? 'text-white'
-                  : 'text-white/50 hover:text-white/80'
-              }`}
+              className={`flex-1 py-2.5 text-xs font-medium transition-all relative ${activeTab === 'guests'
+                ? 'text-white'
+                : 'text-white/50 hover:text-white/80'
+                }`}
             >
               <span className="flex flex-col items-center gap-1">
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full leading-none ${
-                  activeTab === 'guests' 
-                    ? 'bg-white/20 text-white' 
-                    : 'bg-white/10 text-white/50'
-                }`}>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full leading-none ${activeTab === 'guests'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-white/10 text-white/50'
+                  }`}>
                   {guests.length}
                 </span>
                 <span>👥 Invitados</span>
@@ -607,21 +623,19 @@ const AdminPanel = () => {
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-t-full"></div>
               )}
             </button>
-            
+
             <button
               onClick={() => setActiveTab('pending')}
-              className={`flex-1 py-2.5 text-xs font-medium transition-all relative ${
-                activeTab === 'pending'
-                  ? 'text-white'
-                  : 'text-white/50 hover:text-white/80'
-              }`}
+              className={`flex-1 py-2.5 text-xs font-medium transition-all relative ${activeTab === 'pending'
+                ? 'text-white'
+                : 'text-white/50 hover:text-white/80'
+                }`}
             >
               <span className="flex flex-col items-center gap-1">
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full leading-none ${
-                  activeTab === 'pending' 
-                    ? 'bg-yellow-500/30 text-white' 
-                    : 'bg-white/10 text-white/50'
-                }`}>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full leading-none ${activeTab === 'pending'
+                  ? 'bg-yellow-500/30 text-white'
+                  : 'bg-white/10 text-white/50'
+                  }`}>
                   {pendingMessages.length}
                 </span>
                 <span>⏳ Mensajes</span>
@@ -630,21 +644,19 @@ const AdminPanel = () => {
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-t-full"></div>
               )}
             </button>
-            
+
             <button
               onClick={() => setActiveTab('approved')}
-              className={`flex-1 py-2.5 text-xs font-medium transition-all relative ${
-                activeTab === 'approved'
-                  ? 'text-white'
-                  : 'text-white/50 hover:text-white/80'
-              }`}
+              className={`flex-1 py-2.5 text-xs font-medium transition-all relative ${activeTab === 'approved'
+                ? 'text-white'
+                : 'text-white/50 hover:text-white/80'
+                }`}
             >
               <span className="flex flex-col items-center gap-1">
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full leading-none ${
-                  activeTab === 'approved' 
-                    ? 'bg-green-500/30 text-white' 
-                    : 'bg-white/10 text-white/50'
-                }`}>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full leading-none ${activeTab === 'approved'
+                  ? 'bg-green-500/30 text-white'
+                  : 'bg-white/10 text-white/50'
+                  }`}>
                   {approvedMessages.length}
                 </span>
                 <span>✅ Aprobados</span>
@@ -666,7 +678,7 @@ const AdminPanel = () => {
             {/* Guests Tab */}
             {activeTab === 'guests' && (
               <>
-              {/* Guest Stats */}
+                {/* Guest Stats */}
                 <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20 mb-4">
                   {/* Header with Refresh Button */}
                   <div className="flex items-center justify-end mb-3">
@@ -691,9 +703,9 @@ const AdminPanel = () => {
                       </div>
                       <div className="text-purple-200 text-xs font-medium mt-0.5">Personas</div>
                     </div>
-                    
+
                     <div className="w-px h-12 bg-white/20"></div>
-                    
+
                     <div className="text-center">
                       <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-pink-500/30 to-pink-600/30 flex items-center justify-center text-2xl border border-pink-400/30">
                         👰
@@ -703,9 +715,9 @@ const AdminPanel = () => {
                       </div>
                       <div className="text-pink-200 text-xs font-medium mt-0.5">Novia</div>
                     </div>
-                    
+
                     <div className="w-px h-12 bg-white/20"></div>
-                    
+
                     <div className="text-center">
                       <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-cyan-500/30 to-cyan-600/30 flex items-center justify-center text-2xl border border-cyan-400/30">
                         🤵
@@ -715,7 +727,7 @@ const AdminPanel = () => {
                       </div>
                       <div className="text-cyan-200 text-xs font-medium mt-0.5">Novio</div>
                     </div>
-                    
+
                     <div className="w-px h-12 bg-white/20"></div>
 
                     <div className="text-center">
@@ -740,9 +752,9 @@ const AdminPanel = () => {
                       </div>
                       <div className="text-blue-200 text-xs font-medium mt-0.5">Costo Total</div>
                     </div>
-                    
+
                     <div className="w-px h-12 bg-white/20"></div>
-                    
+
                     <div className="text-center flex-1">
                       <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-emerald-500/30 to-emerald-600/30 flex items-center justify-center text-2xl border border-emerald-400/30">
                         💲
@@ -752,9 +764,9 @@ const AdminPanel = () => {
                       </div>
                       <div className="text-emerald-200 text-xs font-medium mt-0.5">Total Esperado</div>
                     </div>
-                    
+
                     <div className="w-px h-12 bg-white/20"></div>
-                    
+
                     <div className="text-center flex-1">
                       <div className="w-12 h-12 mx-auto mb-1 rounded-full bg-gradient-to-br from-yellow-500/30 to-yellow-600/30 flex items-center justify-center text-2xl border border-yellow-400/30">
                         💰
@@ -810,31 +822,28 @@ const AdminPanel = () => {
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <button
                           onClick={() => setFilterConfirmed('all')}
-                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
-                            filterConfirmed === 'all'
-                              ? 'bg-white/30 text-white border-2 border-white/50'
-                              : 'bg-white/10 text-white/70 border border-white/20 hover:bg-white/20'
-                          }`}
+                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${filterConfirmed === 'all'
+                            ? 'bg-white/30 text-white border-2 border-white/50'
+                            : 'bg-white/10 text-white/70 border border-white/20 hover:bg-white/20'
+                            }`}
                         >
                           Todos
                         </button>
                         <button
                           onClick={() => setFilterConfirmed('confirmed')}
-                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
-                            filterConfirmed === 'confirmed'
-                              ? 'bg-green-500/40 text-white border-2 border-green-400/60'
-                              : 'bg-white/10 text-white/70 border border-white/20 hover:bg-green-500/20'
-                          }`}
+                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${filterConfirmed === 'confirmed'
+                            ? 'bg-green-500/40 text-white border-2 border-green-400/60'
+                            : 'bg-white/10 text-white/70 border border-white/20 hover:bg-green-500/20'
+                            }`}
                         >
                           ✅ Si Voy
                         </button>
                         <button
                           onClick={() => setFilterConfirmed('pending')}
-                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
-                            filterConfirmed === 'pending'
-                              ? 'bg-yellow-500/40 text-white border-2 border-yellow-400/60'
-                              : 'bg-white/10 text-white/70 border border-white/20 hover:bg-yellow-500/20'
-                          }`}
+                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${filterConfirmed === 'pending'
+                            ? 'bg-yellow-500/40 text-white border-2 border-yellow-400/60'
+                            : 'bg-white/10 text-white/70 border border-white/20 hover:bg-yellow-500/20'
+                            }`}
                         >
                           ⏳ Pendiente
                         </button>
@@ -847,31 +856,28 @@ const AdminPanel = () => {
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <button
                           onClick={() => setFilterGuestFrom('all')}
-                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
-                            filterGuestFrom === 'all'
-                              ? 'bg-white/30 text-white border-2 border-white/50'
-                              : 'bg-white/10 text-white/70 border border-white/20 hover:bg-white/20'
-                          }`}
+                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${filterGuestFrom === 'all'
+                            ? 'bg-white/30 text-white border-2 border-white/50'
+                            : 'bg-white/10 text-white/70 border border-white/20 hover:bg-white/20'
+                            }`}
                         >
                           Ambos
                         </button>
                         <button
                           onClick={() => setFilterGuestFrom('wife')}
-                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
-                            filterGuestFrom === 'wife'
-                              ? 'bg-pink-500/40 text-white border-2 border-pink-400/60'
-                              : 'bg-white/10 text-white/70 border border-white/20 hover:bg-pink-500/20'
-                          }`}
+                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${filterGuestFrom === 'wife'
+                            ? 'bg-pink-500/40 text-white border-2 border-pink-400/60'
+                            : 'bg-white/10 text-white/70 border border-white/20 hover:bg-pink-500/20'
+                            }`}
                         >
                           👰 Novia
                         </button>
                         <button
                           onClick={() => setFilterGuestFrom('husband')}
-                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
-                            filterGuestFrom === 'husband'
-                              ? 'bg-cyan-500/40 text-white border-2 border-cyan-400/60'
-                              : 'bg-white/10 text-white/70 border border-white/20 hover:bg-cyan-500/20'
-                          }`}
+                          className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${filterGuestFrom === 'husband'
+                            ? 'bg-cyan-500/40 text-white border-2 border-cyan-400/60'
+                            : 'bg-white/10 text-white/70 border border-white/20 hover:bg-cyan-500/20'
+                            }`}
                         >
                           🤵 Novio
                         </button>
@@ -909,7 +915,7 @@ const AdminPanel = () => {
                       {guests.length === 0 ? 'Sin invitados' : 'No se encontraron resultados'}
                     </div>
                     <div className="text-white/60">
-                      {guests.length === 0 
+                      {guests.length === 0
                         ? 'Agrega tu primer invitado para comenzar'
                         : 'Intenta con otros términos de búsqueda o filtros'}
                     </div>
@@ -937,7 +943,7 @@ const AdminPanel = () => {
                             const totalPersonas = guest.num_guests || 0;
                             const costoTotal = (guest.cost_per_person || 0) * totalPersonas;
                             const totalPagado = allGuestPayments[guest.id] || 0;
-                            
+
                             return (
                               <tr key={guest.id} className="hover:bg-white/5 transition-colors">
                                 <td className="px-3 py-2 w-[25%]">
@@ -967,7 +973,7 @@ const AdminPanel = () => {
                                       👤 {totalPersonas}
                                     </div>
                                     {/* Costo Total */}
-                                    { costoTotal > 0 && (
+                                    {costoTotal > 0 && (
                                       <>
                                         <div className="text-green-400 text-xs font-semibold whitespace-nowrap">
                                           ${costoTotal.toLocaleString('es-AR')}
@@ -982,16 +988,16 @@ const AdminPanel = () => {
                                 </td>
                                 <td className="px-3 py-2 w-[35%]">
                                   <div className="flex items-center justify-center gap-2">
-                                     <button
+                                    <button
                                       onClick={() => handleSendWhatsApp(guest)}
                                       className="p-1.5 bg-green-500/20 text-green-200 rounded-lg hover:bg-green-500/30 active:scale-95 transition-all"
                                       title="Enviar por WhatsApp"
                                     >
                                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                                       </svg>
                                     </button>
-                                    { costoTotal > 0 && (
+                                    {costoTotal > 0 && (
                                       <button
                                         onClick={() => handleOpenPayments(guest)}
                                         className="p-1.5 bg-purple-500/20 text-purple-200 rounded-lg hover:bg-purple-500/30 active:scale-95 transition-all text-sm"
@@ -1002,11 +1008,10 @@ const AdminPanel = () => {
                                     )}
                                     <button
                                       onClick={() => handleToggleConfirmation(guest)}
-                                      className={`p-1.5 rounded-lg active:scale-95 transition-all text-sm ${
-                                        guest.confirmed 
-                                          ? 'bg-yellow-500/20 text-yellow-200 hover:bg-yellow-500/30' 
-                                          : 'bg-green-500/20 text-green-200 hover:bg-green-500/30'
-                                      }`}
+                                      className={`p-1.5 rounded-lg active:scale-95 transition-all text-sm ${guest.confirmed
+                                        ? 'bg-yellow-500/20 text-yellow-200 hover:bg-yellow-500/30'
+                                        : 'bg-green-500/20 text-green-200 hover:bg-green-500/30'
+                                        }`}
                                       title={guest.confirmed ? 'Marcar como pendiente' : 'Confirmar asistencia'}
                                     >
                                       {guest.confirmed ? '⏳' : '✅'}
@@ -1060,7 +1065,7 @@ const AdminPanel = () => {
                         </svg>
                       </button>
                     </div>
-                    
+
                     {pendingMessages.map((msg) => (
                       <MessageCard
                         key={msg.id}
@@ -1104,7 +1109,7 @@ const AdminPanel = () => {
                         </svg>
                       </button>
                     </div>
-                    
+
                     {approvedMessages.map((msg) => (
                       <MessageCard
                         key={msg.id}
@@ -1124,7 +1129,7 @@ const AdminPanel = () => {
 
       {/* WhatsApp Preview Modal */}
       {showWhatsAppPreview && previewGuest && createPortal(
-        <div 
+        <div
           className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
@@ -1150,7 +1155,7 @@ const AdminPanel = () => {
               }
             }
           `}</style>
-          <div 
+          <div
             className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-2xl p-6 border border-white/20 w-full max-w-md shadow-2xl"
             style={{ animation: 'slideUp 0.3s ease-out' }}
           >
@@ -1158,7 +1163,7 @@ const AdminPanel = () => {
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-500/20 rounded-full">
                   <svg className="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-white">
@@ -1177,7 +1182,7 @@ const AdminPanel = () => {
                 </svg>
               </button>
             </div>
-            
+
             <div className="space-y-4">
               {/* Guest Info */}
               <div className="bg-white/5 rounded-lg p-3">
@@ -1238,7 +1243,7 @@ const AdminPanel = () => {
                     {'\n\n'}
                     Invitacion digital
                     {'\n'}
-                    <a 
+                    <a
                       href={`${window.location.origin}?code=${previewGuest.guest_code}`}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -1257,7 +1262,7 @@ const AdminPanel = () => {
                   className="flex-1 px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all font-semibold shadow-lg flex items-center justify-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                   </svg>
                   Abrir WhatsApp
                 </button>
@@ -1279,7 +1284,7 @@ const AdminPanel = () => {
 
       {/* Payments Modal */}
       {showPaymentsModal && selectedGuest && createPortal(
-        <div 
+        <div
           className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
@@ -1290,7 +1295,7 @@ const AdminPanel = () => {
           }}
           style={{ animation: 'fadeIn 0.2s ease-out' }}
         >
-          <div 
+          <div
             className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-2xl p-6 border border-white/20 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
             style={{ animation: 'slideUp 0.3s ease-out' }}
           >
@@ -1341,16 +1346,14 @@ const AdminPanel = () => {
               </div>
               <div className="h-px bg-white/10"></div>
               <div className="flex items-center justify-between">
-                <span className={`text-sm font-medium ${
-                  getTotalPaid(guestPayments) >= (selectedGuest.cost_per_person || 0) * selectedGuest.num_guests || 0
-                    ? 'text-green-200'
-                    : 'text-red-200'
-                }`}>Saldo</span>
-                <span className={`text-base font-bold ${
-                  getTotalPaid(guestPayments) >= (selectedGuest.cost_per_person || 0) * selectedGuest.num_guests || 0
-                    ? 'text-green-400'
-                    : 'text-red-400'
-                }`}>
+                <span className={`text-sm font-medium ${getTotalPaid(guestPayments) >= (selectedGuest.cost_per_person || 0) * selectedGuest.num_guests || 0
+                  ? 'text-green-200'
+                  : 'text-red-200'
+                  }`}>Saldo</span>
+                <span className={`text-base font-bold ${getTotalPaid(guestPayments) >= (selectedGuest.cost_per_person || 0) * selectedGuest.num_guests || 0
+                  ? 'text-green-400'
+                  : 'text-red-400'
+                  }`}>
                   ${(((selectedGuest.cost_per_person || 0) * selectedGuest.num_guests || 0) - getTotalPaid(guestPayments)).toLocaleString('es-AR')}
                 </span>
               </div>
@@ -1378,7 +1381,7 @@ const AdminPanel = () => {
                       type="number"
                       step="0.01"
                       value={paymentForm.amount}
-                      onChange={(e) => setPaymentForm({...paymentForm, amount: e.target.value})}
+                      onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
                       className="w-full px-4 py-2 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
                       required
                     />
@@ -1390,7 +1393,7 @@ const AdminPanel = () => {
                     <input
                       type="date"
                       value={paymentForm.payment_date}
-                      onChange={(e) => setPaymentForm({...paymentForm, payment_date: e.target.value})}
+                      onChange={(e) => setPaymentForm({ ...paymentForm, payment_date: e.target.value })}
                       className="w-full px-4 py-2 rounded-lg bg-white/10 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
                   </div>
@@ -1401,7 +1404,7 @@ const AdminPanel = () => {
                   </label>
                   <textarea
                     value={paymentForm.notes}
-                    onChange={(e) => setPaymentForm({...paymentForm, notes: e.target.value})}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, notes: e.target.value })}
                     rows="2"
                     className="w-full px-4 py-2 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                   />
@@ -1474,7 +1477,7 @@ const AdminPanel = () => {
 
       {/* Guest Form Modal */}
       {showGuestForm && createPortal(
-        <div 
+        <div
           className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
@@ -1501,7 +1504,7 @@ const AdminPanel = () => {
               }
             }
           `}</style>
-          <div 
+          <div
             className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-2xl p-8 border border-white/20 w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl"
             style={{ animation: 'slideUp 0.3s ease-out' }}
           >
@@ -1522,7 +1525,7 @@ const AdminPanel = () => {
                 </svg>
               </button>
             </div>
-            
+
             <form onSubmit={handleSaveGuest} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -1532,7 +1535,7 @@ const AdminPanel = () => {
                   <input
                     type="text"
                     value={guestForm.first_name}
-                    onChange={(e) => setGuestForm({...guestForm, first_name: e.target.value})}
+                    onChange={(e) => setGuestForm({ ...guestForm, first_name: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
                   />
@@ -1544,7 +1547,7 @@ const AdminPanel = () => {
                   <input
                     type="text"
                     value={guestForm.last_name}
-                    onChange={(e) => setGuestForm({...guestForm, last_name: e.target.value})}
+                    onChange={(e) => setGuestForm({ ...guestForm, last_name: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
                   />
@@ -1556,7 +1559,7 @@ const AdminPanel = () => {
                   <input
                     type="text"
                     value={guestForm.nickname}
-                    onChange={(e) => setGuestForm({...guestForm, nickname: e.target.value})}
+                    onChange={(e) => setGuestForm({ ...guestForm, nickname: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
@@ -1567,7 +1570,7 @@ const AdminPanel = () => {
                   <input
                     type="text"
                     value={editingGuest ? guestForm.guest_code : 'Se generará al guardar'}
-                    onChange={(e) => setGuestForm({...guestForm, guest_code: e.target.value.toUpperCase()})}
+                    onChange={(e) => setGuestForm({ ...guestForm, guest_code: e.target.value.toUpperCase() })}
                     placeholder={editingGuest ? "Código del invitado" : "Se generará automáticamente"}
                     className="w-full px-4 py-3 rounded-lg bg-white/10 text-white/70 placeholder-white/50 border border-white/30 focus:outline-none cursor-not-allowed"
                     readOnly
@@ -1581,7 +1584,7 @@ const AdminPanel = () => {
                   <input
                     type="number"
                     value={guestForm.cost_per_person}
-                    onChange={(e) => setGuestForm({...guestForm, cost_per_person: parseFloat(e.target.value)})}
+                    onChange={(e) => setGuestForm({ ...guestForm, cost_per_person: parseFloat(e.target.value) })}
                     className="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
@@ -1593,7 +1596,7 @@ const AdminPanel = () => {
                     type="number"
                     min="0"
                     value={guestForm.num_guests}
-                    onChange={(e) => setGuestForm({...guestForm, num_guests: parseInt(e.target.value)})}
+                    onChange={(e) => setGuestForm({ ...guestForm, num_guests: parseInt(e.target.value) })}
                     className="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
@@ -1603,7 +1606,7 @@ const AdminPanel = () => {
                   </label>
                   <select
                     value={guestForm.guest_from}
-                    onChange={(e) => setGuestForm({...guestForm, guest_from: e.target.value})}
+                    onChange={(e) => setGuestForm({ ...guestForm, guest_from: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-white/10 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
                   >
@@ -1612,32 +1615,32 @@ const AdminPanel = () => {
                   </select>
                 </div>
               </div>
-              
+
               <div>
                 <label className="text-white/90 text-sm font-medium block mb-2">
                   Notas
                 </label>
                 <textarea
                   value={guestForm.notes}
-                  onChange={(e) => setGuestForm({...guestForm, notes: e.target.value})}
+                  onChange={(e) => setGuestForm({ ...guestForm, notes: e.target.value })}
                   rows="3"
                   className="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                 />
               </div>
-              
+
               <div className="flex items-center gap-3 p-4 bg-white/5 rounded-lg">
                 <input
                   type="checkbox"
                   id="confirmado"
                   checked={guestForm.confirmed}
-                  onChange={(e) => setGuestForm({...guestForm, confirmed: e.target.checked})}
+                  onChange={(e) => setGuestForm({ ...guestForm, confirmed: e.target.checked })}
                   className="w-5 h-5 rounded accent-green-500"
                 />
                 <label htmlFor="confirmado" className="text-white/90 text-sm font-medium cursor-pointer">
                   ✅ Confirmado
                 </label>
               </div>
-              
+
               <div className="flex gap-2 pt-4 border-t border-white/10">
                 <button
                   type="submit"

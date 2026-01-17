@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import DetailInfo from '../detail-info';
 import data from '../../../data/config.json';
@@ -16,6 +17,7 @@ TagItem.propTypes = {
 };
 
 function Thumbnail({ guestData }) {
+  const navigate = useNavigate();
   const [isOpenDetail, setIsOpenDetail] = React.useState(false);
   const [isAnimating, setIsAnimating] = React.useState(false);
 
@@ -32,9 +34,8 @@ function Thumbnail({ guestData }) {
         backgroundImage: `url(${data.thumbnail_image_url})`,
         marginTop: '-80px',
       }}
-      className={`min-h-screen bg-cover bg-center bg-no-repeat flex flex-col justify-end mb-10 transition-all duration-300 ${
-        isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
-      }`}
+      className={`min-h-screen bg-cover bg-center bg-no-repeat flex flex-col justify-end mb-10 transition-all duration-300 ${isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+        }`}
     >
       <div className="pb-10  pt-2 bg-gradient-to-b from-transparent via-black to-black">
         <div className="px-5 mb-10 space-y-2">
@@ -102,6 +103,20 @@ function Thumbnail({ guestData }) {
                 d="M13 7 7.674 1.3a.91.91 0 0 0-1.348 0L1 7"
               ></path>
             </svg>
+          </button>
+
+          <button
+            onClick={() => navigate('/media')}
+            className="flex items-center gap-2 
+                       bg-white/10 text-white 
+                       px-6 py-2 rounded-full
+                       font-medium text-sm
+                       hover:bg-white/20 hover:scale-105 
+                       backdrop-blur-sm
+                       transition-all duration-200"
+          >
+            <span>📸</span>
+            <span>Galería de Fotos</span>
           </button>
         </div>
       </div>

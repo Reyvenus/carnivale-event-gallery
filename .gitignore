@@ -23,3 +23,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+PHOTO_UPLOAD_EXPLAINED.md
+PHOTO_GALLERY_EXPLAINED.md
+API_BACKEND_EXPLAINED.md
