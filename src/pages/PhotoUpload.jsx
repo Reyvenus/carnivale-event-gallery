@@ -37,16 +37,32 @@ const PhotoUpload = () => {
     };
   }, [navigate, isAdmin]);
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = async (e) => {
     if (e.target.files) {
       console.log("e.target.files", e.target.files);
       console.log("e.target", e.target);
-      const newFiles = Array.from(e.target.files).map(file => ({
-        file,
-        preview: URL.createObjectURL(file),
-        id: Math.random().toString(36).substring(7),
-        status: 'pending' // pending, uploading, success, error
-      }));
+      
+      // Convertir a Blob inmediatamente para evitar problemas de referencia
+      const newFilesPromises = Array.from(e.target.files).map(async (file) => {
+        // Crear un blob persistente del archivo
+        const blob = await file.arrayBuffer().then(buffer => 
+          new Blob([buffer], { type: file.type })
+        );
+        
+        // Asignar nombre y propiedades del archivo original al blob
+        blob.name = file.name;
+        blob.lastModified = file.lastModified;
+        
+        return {
+          file: blob,
+          originalName: file.name,
+          preview: URL.createObjectURL(blob),
+          id: Math.random().toString(36).substring(7),
+          status: 'pending' // pending, uploading, success, error
+        };
+      });
+      
+      const newFiles = await Promise.all(newFilesPromises);
       console.log("newFiles", newFiles);
       setFiles(prev => [...prev, ...newFiles]);
     }
@@ -94,7 +110,7 @@ const PhotoUpload = () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            filename: fileObj.file.name,
+            filename: fileObj.originalName || fileObj.file.name,
             originalContentType: fileObj.file.type,
             thumbnailContentType: compressedFile.type
           })
@@ -126,8 +142,16 @@ const PhotoUpload = () => {
         );
       } catch (error) {
         console.error("Upload error:", error);
+        console.error("Error details:", {
+          message: error.message,
+          name: error.name,
+          fileName: fileObj.originalName || fileObj.file.name,
+          fileType: fileObj.file.type,
+          fileSize: fileObj.file.size
+        });
+        
         setFiles(prev => prev.map(file => file.id === fileObj.id
-          ? { ...file, status: 'error' }
+          ? { ...file, status: 'error', errorMessage: error.message }
           : file)
         );
       }
