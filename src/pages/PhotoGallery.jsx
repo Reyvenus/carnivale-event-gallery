@@ -27,15 +27,15 @@ const PhotoGallery = () => {
 
     // estrategia de cache
     const cachedData = sessionStorage.getItem('galleryCache');
-    if (cachedData) {
-      const { photos: cachedPhotos, timestamp } = JSON.parse(cachedData);
-      const now = Date.now();
-      if (now - timestamp < 300000) {
-        setPhotos(cachedPhotos);
-        setLoading(false);
-        return;
-      }
-    }
+    // if (cachedData) {
+    //   const { photos: cachedPhotos, timestamp } = JSON.parse(cachedData);
+    //   const now = Date.now();
+    //   if (now - timestamp < 300000) {
+    //     setPhotos(cachedPhotos);
+    //     setLoading(false);
+    //     return;
+    //   }
+    // }
 
     fetchPhotos();
   }, [navigate, isAdmin]);
