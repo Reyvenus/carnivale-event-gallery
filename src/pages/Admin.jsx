@@ -279,7 +279,8 @@ const AdminPanel = () => {
     const typePrefix3 = previewGuest.num_guests > 1 ? 'verlos' : 'verte';
     // const message = `¡Hola ${guestName}! 👋\n\n¡Queremos compartir con ${typePrefix} una gran alegria: *la celebracion de nuestra BODA*🤵💍💒👰 \n\n${typePrefix1} la invitacion digital, esperamos ${typePrefix2} *CONFIRMACION* hasta el *10 de Diciembre*. \n\nNos haria muy felices ${typePrefix2} presencia ✨ \n\n${url}\n\n¡Esperamos ${typePrefix3} allí! 🎉`;
 
-    const message = `¡Hola Querida Familia y Amigo/as! 👋! 👋\n\n¡Queremos recordarles que ya estamos en fecha de *CONFIRMAR* su *PRESENCIA* ya que tenemos que cerrar el contrato del evento. \nAgradecemos que nos confirmen como *ÚLTIMA FECHA* hasta el dia *MIERCOLES 17 de Diciembre* \n\nLes enviamos por aqui, para quienes tuvieron inconvenientes, el alias/cbu: \n*Alias*: ${alias} \n*CBU*: ${cbu}\n*name*:${name}  \n\nInvitacion digital: \n${url}`;
+    // const message = `¡Hola Querida Familia y Amigo/as! 👋! 👋\n\n¡Queremos recordarles que ya estamos en fecha de *CONFIRMAR* su *PRESENCIA* ya que tenemos que cerrar el contrato del evento. \nAgradecemos que nos confirmen como *ÚLTIMA FECHA* hasta el dia *MIERCOLES 17 de Diciembre* \n\nLes enviamos por aqui, para quienes tuvieron inconvenientes, el alias/cbu: \n*Alias*: ${alias} \n*CBU*: ${cbu}\n*name*:${name}  \n\nInvitacion digital: \n${url}`;
+    const message = `Hola familia y amigas/os! Queremos informarles una pequeña modificación de horarios:\n\n*Ceremonia Religiosa:*\n⏰ Horario: 20:45 hs\n📍 Lugar: Capilla San Ignacio de Loyola\n\n*Ceremonia Civil:*\n⏰ Horario: 21:45 hs\n📍 Lugar: Niza Eventos\n\nLos esperamos 🥰❤️`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     setShowWhatsAppPreview(false);
