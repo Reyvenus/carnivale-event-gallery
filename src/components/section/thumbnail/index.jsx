@@ -114,6 +114,7 @@ function Thumbnail({ guestData }) {
                        hover:bg-white/20 hover:scale-105 
                        backdrop-blur-sm
                        transition-all duration-200"
+            disabled={true}
           >
             <span>📸</span>
             <span>Galería de Fotos</span>

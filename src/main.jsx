@@ -14,13 +14,13 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/admin" element={<AdminPanel />} />
-        <Route path="/admin/media" element={<MediaDashboard />} />
-        <Route path="/admin/media/upload" element={<PhotoUpload />} />
-        <Route path="/admin/media/gallery" element={<PhotoGallery />} />
+        <Route path="/admin/mediacenter" element={<MediaDashboard />} />
+        <Route path="/admin/mediacenter/upload" element={<PhotoUpload />} />
+        <Route path="/admin/mediacenter/gallery" element={<PhotoGallery />} />
         {/* Public Routes for Guests */}
-        <Route path="/media" element={<MediaDashboard />} />
-        <Route path="/media/upload" element={<PhotoUpload />} />
-        <Route path="/media/gallery" element={<PhotoGallery />} />
+        <Route path="/mediacenter" element={<MediaDashboard />} />
+        <Route path="/mediacenter/upload" element={<PhotoUpload />} />
+        <Route path="/mediacenter/gallery" element={<PhotoGallery />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import imageCompression from 'browser-image-compression';
@@ -15,11 +16,6 @@ const PhotoUpload = () => {
   const [files, setFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ total: 0, current: 0 });
-  const [isProcessing, setIsProcessing] = useState(false); // estado de procesamiento de la fotos
-  const [showSuccessModal, setShowSuccessModal] = useState(false); // estado del modal de exito
-  const fileInputRef = useRef(null);
-
-  console.log("files", files);
   console.log("uploadProgress", uploadProgress);
 
   useEffect(() => {
@@ -219,7 +215,7 @@ const PhotoUpload = () => {
         <div className="flex flex-row items-center justify-between mb-6 md:mb-8 gap-3 md:gap-4">
           <div className="flex items-center gap-3 md:gap-4">
             <button
-              onClick={() => navigate(isAdmin ? '/admin/media' : '/media')}
+              onClick={() => navigate(isAdmin ? '/admin/mediacenter' : '/mediacenter')}
               className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all text-white shrink-0"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -234,7 +230,7 @@ const PhotoUpload = () => {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate(isAdmin ? '/admin/media/gallery' : '/media/gallery')}
+              onClick={() => navigate(isAdmin ? '/admin/mediacenter/gallery' : '/mediacenter/gallery')}
               className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/80 hover:text-white hover:bg-white/10 transition-all text-sm font-medium flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -290,11 +286,6 @@ const PhotoUpload = () => {
                     className={`w-full h-full object-cover transition-all ${file.status === 'error' ? 'opacity-50 grayscale' : ''
                       } ${file.status === 'success' ? 'opacity-50' : ''}`}
                   />
-
-                  {/* Status Overlays */}
-                  {/* Status Overlays */}
-                  {/* Removed 'uploading' spinner overlay */}
-
                   {file.status === 'success' && (
                     <div className="absolute inset-0 flex items-center justify-center bg-green-500/20 backdrop-blur-sm">
                       <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white shadow-lg">

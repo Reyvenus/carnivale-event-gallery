@@ -56,3 +56,23 @@ export const uploadFileToS3 = async (url, file, contentType) => {
     throw error;
   }
 };
+
+// Elimina la foto (thumbnail) de S3
+export const deletePhoto = async (key) => {
+  try {
+    const response = await fetch('/api/delete-photo', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete photo');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error in deletePhoto:", error);
+    throw error;
+  }
+};

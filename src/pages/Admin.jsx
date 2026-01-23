@@ -561,7 +561,7 @@ const AdminPanel = () => {
                   <div className="p-2">
                     <button
                       onClick={() => {
-                        navigate('/admin/media');
+                        navigate('/admin/mediacenter');
                         setShowUserMenu(false);
                       }}
                       className="w-full px-3 py-2.5 rounded-lg text-left text-white/80 hover:bg-purple-500/20 hover:text-purple-200 transition-all flex items-center gap-3 text-sm group mb-1"

@@ -30,10 +30,10 @@ const MediaDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-8 flex items-center justify-center">
+    <div className="h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900 p-4 md:p-8 flex items-center justify-center">
       <div className="max-w-4xl w-full">
         {/* Header */}
-        <div className="mb-12 text-center">
+        <div className="mb-16 text-center">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent mb-4">
             Galería de Recuerdos
           </h1>
@@ -47,8 +47,8 @@ const MediaDashboard = () => {
 
           {/* Button 1: Upload Photos */}
           <button
-            onClick={() => navigate(isAdmin ? '/admin/media/upload' : '/media/upload')}
-            className="group relative h-64 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 flex flex-col items-center justify-center overflow-hidden hover:scale-105 active:scale-95 shadow-2xl"
+            onClick={() => navigate(isAdmin ? '/admin/mediacenter/upload' : '/mediacenter/upload')}
+            className="group relative h-52 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 flex flex-col items-center justify-center overflow-hidden hover:scale-105 active:scale-95 shadow-2xl"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
@@ -63,14 +63,13 @@ const MediaDashboard = () => {
 
           {/* Button 2: View Gallery */}
           <button
-            onClick={() => navigate(isAdmin ? '/admin/media/gallery' : '/media/gallery')}
-            className="group relative h-64 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 flex flex-col items-center justify-center overflow-hidden hover:scale-105 active:scale-95 shadow-2xl"
+            onClick={() => navigate(isAdmin ? '/admin/mediacenter/gallery' : '/mediacenter/gallery')}
+            className="group relative h-52 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 flex flex-col items-center justify-center overflow-hidden hover:scale-105 active:scale-95 shadow-2xl"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
             <div className="relative z-10 flex flex-col items-center gap-4">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-4xl shadow-lg group-hover:shadow-blue-500/50 transition-all duration-300">
-                🖼️
+              <div className="text-6xl animate-bounce">🤵👰
               </div>
               <h2 className="text-2xl font-bold text-white">Ver Galería</h2>
               <p className="text-white/50 text-sm">Explora todos los recuerdos</p>
