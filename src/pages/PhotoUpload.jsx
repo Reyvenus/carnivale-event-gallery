@@ -1,17 +1,22 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import imageCompression from 'browser-image-compression';
+import UploadStatusModal from '../components/media/UploadStatusModal';
+import UploadActions from '../components/media/UploadActions';
+import { getSignedUploadUrls, uploadFileToS3 } from '../services/mediaService';
 
 
 const PhotoUpload = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [files, setFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ total: 0, current: 0 });
+  const [isProcessing, setIsProcessing] = useState(false); // estado de procesamiento de la fotos
+  const [showSuccessModal, setShowSuccessModal] = useState(false); // estado del modal de exito
   const fileInputRef = useRef(null);
 
   console.log("files", files);
@@ -24,7 +29,9 @@ const PhotoUpload = () => {
       if (auth === 'true') {
         setIsAuthenticated(true);
       } else {
+        // Redirigir al login si no está autenticado
         navigate('/admin');
+        return;
       }
     } else {
       // Acceso público desde /media/upload
@@ -35,36 +42,99 @@ const PhotoUpload = () => {
     return () => {
       files.forEach(file => URL.revokeObjectURL(file.preview));
     };
-  }, [navigate, isAdmin]);
+  }, [navigate, isAdmin, files]); // Added files to dependency array for cleanup
+
+  // PROTECCIÓN 1: Evitar que la pantalla se apague durante la subida (Wake Lock API)
+  useEffect(() => {
+    let wakeLock = null;
+
+    const requestWakeLock = async () => {
+      // Solo intentamos bloquear si el navegador lo soporta y estamos subiendo
+      if (isUploading && 'wakeLock' in navigator) {
+        try {
+          wakeLock = await navigator.wakeLock.request('screen');
+          console.log('Pantalla bloqueada para subida (Wake Lock activo)');
+        } catch (err) {
+          console.warn('Wake Lock rechazado:', err);
+        }
+      }
+    };
+
+    if (isUploading) {
+      requestWakeLock();
+    }
+
+    return () => {
+      if (wakeLock) {
+        wakeLock.release();
+        console.log('Wake Lock liberado');
+      }
+    };
+  }, [isUploading]);
+
+  // PROTECCIÓN 2: Advertir si intenta cerrar la pestaña o recargar
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isUploading) {
+        e.preventDefault();
+        e.returnValue = ''; // Standard para Chrome/Legacy
+        return '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isUploading]);
 
   const handleFileSelect = async (e) => {
-    if (e.target.files) {
-      console.log("e.target.files", e.target.files);
-      console.log("e.target", e.target);
-      
-      // Convertir a Blob inmediatamente para evitar problemas de referencia
-      const newFilesPromises = Array.from(e.target.files).map(async (file) => {
-        // Crear un blob persistente del archivo
-        const blob = await file.arrayBuffer().then(buffer => 
-          new Blob([buffer], { type: file.type })
-        );
-        
-        // Asignar nombre y propiedades del archivo original al blob
-        blob.name = file.name;
-        blob.lastModified = file.lastModified;
-        
-        return {
-          file: blob,
-          originalName: file.name,
-          preview: URL.createObjectURL(blob),
-          id: Math.random().toString(36).substring(7),
-          status: 'pending' // pending, uploading, success, error
-        };
-      });
-      
-      const newFiles = await Promise.all(newFilesPromises);
-      console.log("newFiles", newFiles);
-      setFiles(prev => [...prev, ...newFiles]);
+    console.log("e.target.files", e.target.files);
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    setIsProcessing(true);
+
+    try {
+      const fileArray = Array.from(e.target.files);
+
+      // Procesar archivos inmediatamente para evitar problemas de permisos
+      const processedFiles = await Promise.all(
+        fileArray.map(async (file) => {
+          try {
+            // Leer el archivo inmediatamente como ArrayBuffer
+            const arrayBuffer = await file.arrayBuffer();
+
+            // Crear un nuevo Blob desde el ArrayBuffer (esto persiste en memoria)
+            const blob = new Blob([arrayBuffer], { type: file.type });
+
+            // Crear un objeto File desde el Blob para mantener el nombre
+            const persistentFile = new File([blob], file.name, {
+              type: file.type,
+              lastModified: file.lastModified
+            });
+
+            return {
+              file: persistentFile,
+              preview: URL.createObjectURL(blob),
+              id: Math.random().toString(36).substring(7),
+              status: 'pending'
+            };
+          } catch (error) {
+            console.error('Error reading file:', file.name, error);
+            return null;
+          }
+        })
+      );
+
+      // Filtrar archivos que fallaron
+      const validFiles = processedFiles.filter(f => f !== null);
+
+      if (validFiles.length > 0) {
+        setFiles(prev => [...prev, ...validFiles]);
+      }
+
+      // Limpiar el input para permitir seleccionar los mismos archivos de nuevo
+      e.target.value = '';
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -91,11 +161,6 @@ const PhotoUpload = () => {
         continue; // saltamos si si ya esta agregada
       }
 
-      // Actualizamos el estado uploading
-      setFiles(prev => prev.map(file => file.id === fileObj.id
-        ? { ...file, status: 'uploading' }
-        : file));
-
       try {
         // 1. Comprimimos para el Thumbnail primero
         const options = {
@@ -105,35 +170,17 @@ const PhotoUpload = () => {
         };
         const compressedFile = await imageCompression(fileObj.file, options);
 
-        // 2. Obtenemos las URLs firmadas del Backend con los tipos de contenido correctos
-        const signResponse = await fetch('/api/sign-upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            filename: fileObj.originalName || fileObj.file.name,
-            originalContentType: fileObj.file.type,
-            thumbnailContentType: compressedFile.type
-          })
-        });
+        // 2. Obtenemos las URLs firmadas del Backend mediante el servicio
+        const { original, thumbnail } = await getSignedUploadUrls(
+          fileObj.file.name,
+          fileObj.file.type,
+          compressedFile.type
+        );
 
-        if (!signResponse.ok) throw new Error('Failed to get upload signature');
-
-        const { original, thumbnail } = await signResponse.json();
-
-        // 3. Subimos ambos archivos (PUT a S3 directamente)
+        // 3. Subimos ambos archivos (PUT a S3 directamente) mediante el servicio
         await Promise.all([
-          // Subimos Original
-          fetch(original.url, {
-            method: 'PUT',
-            body: fileObj.file,
-            headers: { 'Content-Type': fileObj.file.type }
-          }),
-          // Subimos Thumbnail
-          fetch(thumbnail.url, {
-            method: 'PUT',
-            body: compressedFile,
-            headers: { 'Content-Type': compressedFile.type }
-          })
+          uploadFileToS3(original.url, fileObj.file, fileObj.file.type),
+          uploadFileToS3(thumbnail.url, compressedFile, compressedFile.type)
         ]);
 
         setFiles(prev => prev.map(file => file.id === fileObj.id
@@ -145,11 +192,11 @@ const PhotoUpload = () => {
         console.error("Error details:", {
           message: error.message,
           name: error.name,
-          fileName: fileObj.originalName || fileObj.file.name,
+          fileName: fileObj.file.name,
           fileType: fileObj.file.type,
           fileSize: fileObj.file.size
         });
-        
+
         setFiles(prev => prev.map(file => file.id === fileObj.id
           ? { ...file, status: 'error', errorMessage: error.message }
           : file)
@@ -158,14 +205,9 @@ const PhotoUpload = () => {
 
       setUploadProgress(prev => ({ ...prev, current: prev.current + 1 }));
     }
-    setIsUploading(false);
 
-    // Si todo salió bien, redirigir a la galería
-    setTimeout(() => {
-      // Clear cache so gallery fetches new photos
-      sessionStorage.removeItem('galleryCache');
-      navigate(isAdmin ? '/admin/media/gallery' : '/media/gallery');
-    }, 1000);
+    setIsUploading(false);
+    setShowSuccessModal(true);
   };
 
   if (!isAuthenticated && isAdmin) return null;
@@ -174,8 +216,8 @@ const PhotoUpload = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header with Nav */}
-        <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
-          <div className="flex items-center gap-4 w-full md:w-auto">
+        <div className="flex flex-row items-center justify-between mb-6 md:mb-8 gap-3 md:gap-4">
+          <div className="flex items-center gap-3 md:gap-4">
             <button
               onClick={() => navigate(isAdmin ? '/admin/media' : '/media')}
               className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all text-white shrink-0"
@@ -201,39 +243,15 @@ const PhotoUpload = () => {
               <span className="hidden sm:inline">Ir a Galería</span>
             </button>
 
-            {files.length > 0 && !isUploading && (
-              <button
-                onClick={() => setFiles([])}
-                className="px-4 py-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all text-sm font-medium"
-              >
-                Cancelar
-              </button>
-            )}
-            <button
-              onClick={uploadFiles}
-              disabled={files.length === 0 || isUploading}
-              className={`px-6 py-2 rounded-xl font-semibold transition-all flex items-center gap-2 ${files.length === 0 || isUploading
-                ? 'bg-white/10 text-white/30 cursor-not-allowed'
-                : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg hover:shadow-purple-500/30 active:scale-95'
-                }`}
-            >
-              {isUploading
-                ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Subiendo ({uploadProgress.current}/{files.length})...</span>
-                  </>
-                )
-                :
-                (
-                  <>
-                    <span>Confirmar y Subir</span>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                    </svg>
-                  </>
-                )}
-            </button>
+            {/* Desktop Action Buttons Component */}
+            <UploadActions
+              variant="desktop"
+              files={files}
+              isUploading={isUploading}
+              uploadProgress={uploadProgress}
+              onUpload={uploadFiles}
+              onClear={() => setFiles([])}
+            />
           </div>
         </div>
 
@@ -243,7 +261,7 @@ const PhotoUpload = () => {
           {/* File Selection Area */}
           <div
             onClick={() => fileInputRef.current?.click()}
-            className={`border-2 border-dashed border-white/10 rounded-2xl p-8 mb-6 flex flex-col items-center justify-center cursor-pointer transition-all ${isUploading ? 'opacity-50 pointer-events-none' : 'hover:border-purple-500/50 hover:bg-white/5'
+            className={`border-2 border-dashed border-white/10 rounded-2xl p-4 md:p-8 mb-4 md:mb-6 flex flex-col items-center justify-center cursor-pointer transition-all ${isUploading ? 'opacity-50 pointer-events-none' : 'hover:border-purple-500/50 hover:bg-white/5'
               }`}
           >
             <input
@@ -254,15 +272,15 @@ const PhotoUpload = () => {
               accept="image/*"
               onChange={handleFileSelect}
             />
-            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 text-3xl">
+            <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/5 flex items-center justify-center mb-3 md:mb-4 text-2xl md:text-3xl">
               ☁️
             </div>
-            <p className="text-white font-medium mb-1">Haz clic para seleccionar fotos</p>
-            <p className="text-white/40 text-sm">o suelta aquí</p>
+            <p className="text-white font-medium mb-1 text-sm md:text-base">Haz clic para seleccionar fotos</p>
+            <p className="text-white/40 text-xs md:text-sm">o suelta aquí</p>
           </div>
 
           {/* Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {files.map((file) => (
               <div key={file.id} className="relative group aspect-square">
                 <div className="absolute inset-0 rounded-xl overflow-hidden bg-black/50 border border-white/10">
@@ -274,11 +292,8 @@ const PhotoUpload = () => {
                   />
 
                   {/* Status Overlays */}
-                  {file.status === 'uploading' && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                      <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    </div>
-                  )}
+                  {/* Status Overlays */}
+                  {/* Removed 'uploading' spinner overlay */}
 
                   {file.status === 'success' && (
                     <div className="absolute inset-0 flex items-center justify-center bg-green-500/20 backdrop-blur-sm">
@@ -312,8 +327,31 @@ const PhotoUpload = () => {
               </div>
             ))}
           </div>
+
+          {/* Mobile Action Buttons - shown only on mobile */}
+          {/* Mobile Action Buttons Component */}
+          <UploadActions
+            variant="mobile"
+            files={files}
+            isUploading={isUploading}
+            uploadProgress={uploadProgress}
+            onUpload={uploadFiles}
+            onClear={() => setFiles([])}
+          />
         </div>
       </div>
+
+      {/* Upload/Success Modal */}
+      <UploadStatusModal
+        isUploading={isUploading}
+        showSuccessModal={showSuccessModal}
+        uploadProgress={uploadProgress}
+        onNavigateToGallery={() => {
+          // Clear cache so gallery fetches new photos
+          sessionStorage.removeItem('galleryCache');
+          navigate(isAdmin ? '/admin/media/gallery' : '/media/gallery');
+        }}
+      />
     </div>
   );
 };

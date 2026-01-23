@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { getGalleryPhotos } from '../services/mediaService';
 
 const PhotoGallery = () => {
   const navigate = useNavigate();
@@ -10,6 +11,9 @@ const PhotoGallery = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  console.log("photos", photos);
+  console.log("selectedPhoto", selectedPhoto);
 
   useEffect(() => {
     // checkeo de autenticacion
@@ -27,26 +31,23 @@ const PhotoGallery = () => {
 
     // estrategia de cache
     const cachedData = sessionStorage.getItem('galleryCache');
-    // if (cachedData) {
-    //   const { photos: cachedPhotos, timestamp } = JSON.parse(cachedData);
-    //   const now = Date.now();
-    //   if (now - timestamp < 300000) {
-    //     setPhotos(cachedPhotos);
-    //     setLoading(false);
-    //     return;
-    //   }
-    // }
+    if (cachedData) {
+      const { photos: cachedPhotos, timestamp } = JSON.parse(cachedData);
+      const now = Date.now();
+      // 5 minutos de cache
+      if (now - timestamp < 300000) {
+        setPhotos(cachedPhotos);
+        setLoading(false);
+        return;
+      }
+    }
 
     fetchPhotos();
   }, [navigate, isAdmin]);
 
   const fetchPhotos = async () => {
     try {
-      const response = await fetch('/api/gallery');
-      if (!response.ok) {
-        throw new Error('Failed to fetch gallery');
-      }
-      const data = await response.json();
+      const data = await getGalleryPhotos();
       console.log("data", data);
       setPhotos(data);
 
