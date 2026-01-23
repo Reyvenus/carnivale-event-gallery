@@ -15,8 +15,10 @@ const PhotoUpload = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [files, setFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ total: 0, current: 0 });
-  console.log("uploadProgress", uploadProgress);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     // Si estamos en ruta de admin, verificamos auth
@@ -257,7 +259,7 @@ const PhotoUpload = () => {
           {/* File Selection Area */}
           <div
             onClick={() => fileInputRef.current?.click()}
-            className={`border-2 border-dashed border-white/10 rounded-2xl p-4 md:p-8 mb-4 md:mb-6 flex flex-col items-center justify-center cursor-pointer transition-all ${isUploading ? 'opacity-50 pointer-events-none' : 'hover:border-purple-500/50 hover:bg-white/5'
+            className={`border-2 border-dashed border-white/10 rounded-2xl p-4 md:p-8 mb-4 md:mb-6 flex flex-col items-center justify-center cursor-pointer transition-all ${(isUploading || isProcessing) ? 'opacity-50 pointer-events-none' : 'hover:border-purple-500/50 hover:bg-white/5'
               }`}
           >
             <input
@@ -340,7 +342,7 @@ const PhotoUpload = () => {
         onNavigateToGallery={() => {
           // Clear cache so gallery fetches new photos
           sessionStorage.removeItem('galleryCache');
-          navigate(isAdmin ? '/admin/media/gallery' : '/media/gallery');
+          navigate(isAdmin ? '/admin/mediacenter/gallery' : '/mediacenter/gallery');
         }}
       />
     </div>
