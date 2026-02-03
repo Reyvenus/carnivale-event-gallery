@@ -89,84 +89,96 @@ const PhotoGallery = () => {
   if (!isAuthenticated && isAdmin) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
+    <div className="min-h-screen w-full relative overflow-hidden font-sans">
+      {/* Background - Fixed */}
+      <div
+        className="fixed inset-0 bg-[length:100%_auto] bg-no-repeat bg-top"
+        style={{ backgroundImage: `url('/images/ablande.png')` }}
+      />
+      <div className="fixed inset-0 bg-black/90" />
+
+      <div className="relative z-10 max-w-7xl mx-auto p-4 md:p-8 pb-24">
+        {/* Header - Rediseñado */}
+        <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-6">
           <div className="flex items-center gap-4 w-full md:w-auto">
             <button
-              onClick={() => navigate(isAdmin ? '/admin/mediacenter' : '/mediacenter')}
-              className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all text-white shrink-0"
+              onClick={() => navigate(isAdmin ? '/admin/media' : '/')}
+              className="w-12 h-12 rounded-full border border-yellow-500/20 bg-black/40 flex items-center justify-center hover:bg-yellow-500/10 transition-all text-yellow-500/80 shrink-0 backdrop-blur-md"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Galería de Fotos</h1>
-              <p className="text-white/50 text-sm">{photos.length} recuerdos capturados</p>
+            <div className="text-left">
+              <h1 className="text-3xl md:text-4xl font-serif text-yellow-100 tracking-wider font-light drop-shadow-md">
+                Galería de <span className="text-yellow-500 font-semibold">Fotos</span>
+              </h1>
+              <p className="text-yellow-200/50 text-xs uppercase tracking-[0.2em] mt-1">{photos.length} Momentos Inolvidables</p>
             </div>
           </div>
 
           <button
-            onClick={() => navigate(isAdmin ? '/admin/mediacenter/upload' : '/mediacenter/upload')}
-            className="w-full md:w-auto px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg hover:shadow-purple-500/30 transition-all font-medium flex items-center justify-center gap-2"
+            onClick={() => navigate(isAdmin ? '/admin/media/upload' : '/upload')}
+            className="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-yellow-600 to-amber-600 text-white rounded-sm hover:shadow-[0_0_25px_rgba(251,191,36,0.4)] transition-all font-serif tracking-widest uppercase text-sm flex items-center justify-center gap-2 border border-yellow-400/30"
           >
-            <span>📸</span>
-            <span>Subir más fotos</span>
+            <span>Subir Fotos</span>
+            <span className="text-lg">✨</span>
           </button>
         </div>
 
-        {/* Gallery Grid */}
+        {/* Gallery Grid - 1 Grande y 3 Chicas */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center min-h-[50vh] text-white/50">
-            <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin mb-4"></div>
-            <p>Cargando recuerdos...</p>
+          <div className="flex flex-col items-center justify-center min-h-[50vh] text-yellow-200/30">
+            <div className="w-16 h-16 border-4 border-yellow-500/20 border-t-yellow-500 rounded-full animate-spin mb-6"></div>
+            <p className="font-serif tracking-widest text-sm">Cargando...</p>
           </div>
         ) : photos.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-[50vh] text-white/30 p-8 text-center border-2 border-dashed border-white/10 rounded-3xl">
-            <div className="text-6xl mb-4">🖼️</div>
-            <p className="text-xl font-medium mb-2">Aún no hay fotos</p>
-            <p className="text-sm">¡Sé el primero en compartir un momento!</p>
+          <div className="flex flex-col items-center justify-center min-h-[50vh] text-yellow-100/30 p-10 text-center border border-yellow-500/10 bg-black/20 backdrop-blur-sm rounded-lg">
+            <div className="text-6xl mb-6 opacity-30">✨</div>
+            <p className="text-2xl font-serif mb-2 text-yellow-100">La galería está vacía</p>
+            <p className="text-sm font-light text-yellow-200/50">¡Comparte el primer recuerdo de esta noche!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 auto-rows-[100px] md:auto-rows-[200px]">
+          <div className="grid grid-cols-3 gap-1 md:gap-2">
             {photos.map((photo, index) => {
-              const getGridClass = (i) => {
-                const pos = i % 7;
-                if (pos === 0) return 'col-span-4 row-span-3 md:col-span-2 md:row-span-2';
-                if (pos === 1 || pos === 2) return 'col-span-2 row-span-2 md:col-span-1 md:row-span-1';
-                return 'col-span-1 row-span-1 md:col-span-1 md:row-span-1';
-              };
+              // Patrón: 1 Grande cada 4 fotos
+              const isLarge = index % 4 === 0;
 
               return (
                 <div
                   key={photo.key}
                   onClick={() => setSelectedPhoto(photo)}
-                  className={`group relative rounded-xl overflow-hidden cursor-zoom-in bg-white/5 transition-all duration-300 hover:shadow-xl hover:z-10 ${getGridClass(index)}`}
+                  className={`group relative overflow-hidden bg-white/5 cursor-zoom-in transition-all duration-500 hover:z-10 ${isLarge
+                    ? 'col-span-3 aspect-[16/9] md:aspect-[21/9]' // Foto Grande (Ocupa 3 columnas)
+                    : 'col-span-1 aspect-square'          // Foto Chica (Ocupa 1 columna)
+                    }`}
                 >
                   <img
                     src={photo.thumbnailUrl}
                     alt="boda"
                     loading="lazy"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter brightness-90 group-hover:brightness-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                    <p className="text-white text-xs font-medium">
-                      {new Date(photo.lastModified).toLocaleDateString()}
-                    </p>
+
+                  {/* Overlay elegante */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
+                    <div className="border-l-2 border-yellow-500 pl-2">
+                      <p className="text-yellow-100 text-[10px] uppercase tracking-wider font-medium">
+                        {new Date(photo.lastModified).toLocaleDateString()}
+                      </p>
+                    </div>
                   </div>
 
                   {isAdmin && (
                     <button
-                      className="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 shadow-lg translate-y-2 group-hover:translate-y-0"
+                      className="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-900/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-700 backdrop-blur-sm border border-red-500/30"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDelete(photo);
                       }}
                       title="Eliminar de galería"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                     </button>
@@ -177,7 +189,7 @@ const PhotoGallery = () => {
           </div>
         )}
 
-        {/* Modal Componentificado */}
+        {/* Modal */}
         {selectedPhoto && (
           <PhotoModal
             selectedPhoto={selectedPhoto}
