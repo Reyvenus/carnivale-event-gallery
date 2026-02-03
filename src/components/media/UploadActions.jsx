@@ -9,6 +9,8 @@ const UploadActions = ({
   onClear,
   variant = 'desktop' // 'desktop' | 'mobile'
 }) => {
+  const isDisabled = files.length === 0 || isUploading;
+
   // Clases contenedor:
   // desktop: visible en sm+, oculto en sm- (mobile), layout horizontal
   // mobile: visible en sm- (mobile), oculto en sm+, layout vertical
@@ -27,10 +29,9 @@ const UploadActions = ({
     : "w-full px-6 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2";
 
   // Estilos de estado (deshabilitado/habilitado)
-  const isDisabled = files.length === 0 || isUploading;
   const stateStyles = isDisabled
     ? 'bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed'
-    : 'border-transparent bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg hover:shadow-purple-500/30 active:scale-95';
+    : 'border-transparent bg-gradient-to-r from-yellow-600 to-amber-600 text-white hover:shadow-[0_0_20px_rgba(251,191,36,0.4)] active:scale-95';
 
   return (
     <div className={containerClasses}>
