@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
   try {
     const command = new ListObjectsV2Command({
-      Bucket: process.env.VITE_AWS_BUCKET_NAME,
+      Bucket: process.env.AWS_BUCKET_NAME,
       Prefix: 'uploads/',
     });
 

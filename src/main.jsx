@@ -11,6 +11,9 @@ createRoot(document.getElementById('root')).render(
       <Route path="/" element={<App />} />
       <Route path="/upload" element={<PhotoUpload />} />
       <Route path="/gallery" element={<PhotoGallery />} />
+      {/* Admin Routes */}
+      <Route path="/admin/upload" element={<PhotoUpload />} />
+      <Route path="/admin/gallery" element={<PhotoGallery />} />
     </Routes>
   </BrowserRouter>
 );

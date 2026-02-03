@@ -76,3 +76,13 @@ export const deletePhoto = async (key) => {
     throw error;
   }
 };
+
+// Valida la clave de administrador en el servidor
+export const login = async (password) => {
+  const response = await fetch('/api/auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password }),
+  });
+  return response;
+};

@@ -8,37 +8,66 @@ const UploadStatusModal = ({
   if (!isUploading && !showSuccessModal) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className="bg-gray-900 border border-white/10 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md transition-all duration-500">
+      <div className="bg-[#0a0a0a] border border-yellow-500/20 rounded-2xl p-8 max-w-sm w-full text-center shadow-[0_0_50px_rgba(234,179,8,0.1)] relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent" />
+
         {isUploading ? (
           <>
-            <div className="mb-6 flex justify-center">
-              <div className="text-6xl animate-bounce">🤵👰</div>
+            <div className="mb-8 flex justify-center">
+              <div className="relative">
+                <div className="text-7xl animate-pulse filter drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]">
+                  💃
+                </div>
+                {/* Decorative sparkles or circles could go here */}
+                <div className="absolute -inset-4 border border-yellow-500/10 rounded-full animate-[spin_10s_linear_infinite]" />
+              </div>
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">Subiendo recuerdos...</h3>
-            <p className="text-white/60 mb-6">Por favor espera un momento mientras guardamos tus fotos.</p>
-            <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+
+            <h3 className="text-2xl font-serif text-yellow-100 mb-2 tracking-wide font-light">
+              Subiendo <span className="text-yellow-500 font-normal">Fotos</span>
+            </h3>
+            <p className="text-yellow-200/50 mb-8 text-sm uppercase tracking-widest font-light">
+              Preparando la pista de baile...
+            </p>
+
+            <div className="relative w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
               <div
-                className="bg-gradient-to-r from-purple-500 to-pink-500 h-full transition-all duration-300"
+                className="absolute inset-y-0 left-0 bg-gradient-to-r from-yellow-600 to-amber-400 h-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(234,179,8,0.4)]"
                 style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
               />
             </div>
-            <p className="text-white/40 text-sm mt-2">{uploadProgress.current} de {uploadProgress.total} fotos</p>
+            <div className="flex justify-between mt-3">
+              <p className="text-yellow-500/40 text-[10px] uppercase tracking-widest">Cargando Fotos</p>
+              <p className="text-yellow-200/60 text-xs font-medium tabular-nums">
+                {uploadProgress.current} / {uploadProgress.total}
+              </p>
+            </div>
           </>
         ) : (
           <>
-            <div className="mb-6 flex justify-center">
-              <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center text-4xl shadow-lg shadow-green-500/30">
-                🎉
+            <div className="mb-8 flex justify-center">
+              <div className="w-24 h-24 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-5xl shadow-[0_0_30px_rgba(234,179,8,0.15)] animate-[bounce_2s_infinite]">
+                ✨
               </div>
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">¡Fotos Cargadas!</h3>
-            <p className="text-white/60 mb-8">Tus recuerdos se han guardado correctamente en la galería.</p>
+
+            <h3 className="text-2xl font-serif text-yellow-100 mb-2 tracking-wide font-light">
+              ¡Fotos <span className="text-yellow-500 font-normal">Guardadas!</span>
+            </h3>
+            <p className="text-yellow-200/50 mb-10 text-sm font-light">
+              Tus fotos ya forman parte de esta gran celebración.
+            </p>
+
             <button
-              onClick={onNavigateToGallery}
-              className="w-full py-3 bg-white text-gray-900 rounded-xl font-bold hover:bg-gray-100 transition-colors"
+              onClick={() => {
+                const isAdmin = window.location.pathname.startsWith('/admin');
+                onNavigateToGallery(isAdmin);
+              }}
+              className="w-full py-4 bg-gradient-to-r from-yellow-600 to-amber-600 text-white rounded-xl font-bold hover:shadow-[0_0_25px_rgba(251,191,36,0.5)] transition-all active:scale-[0.98] uppercase tracking-widest text-sm"
             >
-              Ir a Galería
+              Ir a la Galería
             </button>
           </>
         )}
