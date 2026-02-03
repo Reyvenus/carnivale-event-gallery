@@ -102,7 +102,7 @@ const PhotoGallery = () => {
         <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-6">
           <div className="flex items-center gap-4 w-full md:w-auto">
             <button
-              onClick={() => navigate(isAdmin ? '/admin/media' : '/')}
+              onClick={() => navigate('/')}
               className="w-12 h-12 rounded-full border border-yellow-500/20 bg-black/40 flex items-center justify-center hover:bg-yellow-500/10 transition-all text-yellow-500/80 shrink-0 backdrop-blur-md"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,7 +118,7 @@ const PhotoGallery = () => {
           </div>
 
           <button
-            onClick={() => navigate(isAdmin ? '/admin/media/upload' : '/upload')}
+            onClick={() => navigate(isAdmin ? '/admin/upload' : '/upload')}
             className="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-yellow-600 to-amber-600 text-white rounded-sm hover:shadow-[0_0_25px_rgba(251,191,36,0.4)] transition-all font-serif tracking-widest uppercase text-sm flex items-center justify-center gap-2 border border-yellow-400/30"
           >
             <span>Subir Fotos</span>

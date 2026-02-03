@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import SongButton from './components/ui/song-button';
+import { login } from './services/mediaService';
 
 function App() {
   const [entered, setEntered] = useState(false);
@@ -14,6 +15,24 @@ function App() {
     // Trigger music playback if available
     if (playMusic) {
       playMusic();
+    }
+  };
+
+  const handleAdminLogin = async () => {
+    const password = prompt('Por favor, ingresa tu clave para acceder como administradora:');
+    if (!password) return;
+
+    try {
+      const response = await login(password);
+      if (response.ok) {
+        localStorage.setItem('adminAuth', 'true');
+        navigate('/admin/gallery');
+      } else {
+        alert('Clave incorrecta. Acceso denegado.');
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      alert('Error al intentar iniciar sesión.');
     }
   };
 
@@ -41,7 +60,7 @@ function App() {
               Master Class
             </h2>
 
-            <div className="pt-6">
+            <div className="pt-6 flex flex-col items-center gap-4">
               <button
                 onClick={handleEnter}
                 className="group relative inline-flex items-center justify-center px-8 py-3 text-lg sm:text-xl font-bold text-white transition-all duration-300 bg-gradient-to-r from-pink-600 to-purple-600 rounded-full focus:outline-none focus:ring-4 focus:ring-pink-500/30 hover:shadow-[0_0_30px_rgba(236,72,153,0.6)] hover:scale-105 active:scale-95 shadow-xl animate-pulse-slow"
@@ -50,6 +69,13 @@ function App() {
                   ENTRAR
                   <span className="text-2xl animate-bounce">💃</span>
                 </span>
+              </button>
+
+              <button
+                onClick={handleAdminLogin}
+                className="text-pink-200/40 hover:text-pink-200 transition-colors text-xs uppercase tracking-widest font-light"
+              >
+                Acceso Administradora
               </button>
             </div>
           </div>

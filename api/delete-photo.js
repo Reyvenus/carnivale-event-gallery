@@ -17,7 +17,7 @@ export default async function handler(req, res) {
 
     // 1. Borrar Thumbnail
     const deleteThumbnailCommand = new DeleteObjectCommand({
-      Bucket: process.env.VITE_AWS_BUCKET_NAME,
+      Bucket: process.env.AWS_BUCKET_NAME,
       Key: key,
     });
 

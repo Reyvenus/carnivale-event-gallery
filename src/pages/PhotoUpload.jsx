@@ -181,7 +181,7 @@ const PhotoUpload = () => {
         <div className="flex flex-row items-center justify-between mb-8 gap-4">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate(isAdmin ? '/admin/media' : '/')}
+              onClick={() => navigate('/')}
               className="w-12 h-12 rounded-full border border-yellow-500/20 bg-black/40 flex items-center justify-center hover:bg-yellow-500/10 transition-all text-yellow-500/80 shrink-0 backdrop-blur-md"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,7 +198,7 @@ const PhotoUpload = () => {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate(isAdmin ? '/admin/media/gallery' : '/gallery')}
+              onClick={() => navigate(isAdmin ? '/admin/gallery' : '/gallery')}
               className="px-4 py-2 border border-yellow-500/30 text-yellow-200/80 hover:text-white hover:bg-yellow-500/10 transition-all text-sm font-medium flex items-center gap-2 backdrop-blur-md uppercase tracking-wider rounded-sm"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,15 +241,13 @@ const PhotoUpload = () => {
             <p className="text-yellow-500/40 text-sm uppercase tracking-[0.2em]">Inmortaliza el momento</p>
           </div>
 
-          {/* Grid Layout: 1 Large, 3 Small Pattern */}
-          <div className="grid grid-cols-3 gap-2 md:gap-4">
-            {files.map((file, index) => {
-              const isLarge = index % 4 === 0;
+          {/* Grid Layout: Fixed 4 Column Grid */}
+          <div className="grid grid-cols-4 gap-2 md:gap-4">
+            {files.map((file) => {
               return (
                 <div
                   key={file.id}
-                  className={`relative group overflow-hidden bg-black/50 border border-yellow-500/10 shadow-lg ${isLarge ? 'col-span-3 aspect-[16/9] md:aspect-[21/9] rounded-xl' : 'col-span-1 aspect-square rounded-lg'
-                    }`}
+                  className="relative group overflow-hidden bg-black/50 border border-yellow-500/10 shadow-lg col-span-1 aspect-square rounded-lg"
                 >
                   <img
                     src={file.preview}
@@ -308,9 +306,9 @@ const PhotoUpload = () => {
         isUploading={isUploading}
         showSuccessModal={showSuccessModal}
         uploadProgress={uploadProgress}
-        onNavigateToGallery={() => {
+        onNavigateToGallery={(isRedirectAdmin) => {
           sessionStorage.removeItem('galleryCache');
-          navigate(isAdmin ? '/admin/media/gallery' : '/gallery');
+          navigate(isRedirectAdmin ? '/admin/gallery' : '/gallery');
         }}
       />
     </div>

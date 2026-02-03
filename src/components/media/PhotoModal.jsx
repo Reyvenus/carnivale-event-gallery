@@ -237,11 +237,15 @@ const PhotoModal = ({ selectedPhoto, photos, onClose, setSelectedPhoto }) => {
         >
           {/* Wedding Loading Spinner */}
           {isImageLoading && (
-            <div className="absolute inset-0 flex items-center justify-center z-0">
-              <div className="text-6xl animate-bounce filter drop-shadow-lg">🤵👰
-                <div className="text-center">
-                  <span className="text-white text-xl">Cargando...</span>
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-0">
+              <div className="relative">
+                <div className="text-7xl animate-pulse filter drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]">
+                  💃🕺
                 </div>
+                <div className="absolute -inset-4 border border-yellow-500/10 rounded-full animate-spin" style={{ animationDuration: '3s' }} />
+              </div>
+              <div className="mt-8 text-center">
+                <span className="text-yellow-200/50 text-xs uppercase tracking-[0.2em] font-light">Abriendo Recuerdo...</span>
               </div>
             </div>
           )}

@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     // 1. Preparo URL para la foto original
     const originalKey = `uploads/originals/${uniqueFilename}`;
     const originalCommand = new PutObjectCommand({
-      Bucket: process.env.VITE_AWS_BUCKET_NAME,
+      Bucket: process.env.AWS_BUCKET_NAME,
       Key: originalKey,
       ContentType: originalContentType,
     });
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     // 2. Preparo URL para la foto thumbnail
     const thumbnailKey = `uploads/thumbnails/${uniqueFilename}`;
     const thumbnailCommand = new PutObjectCommand({
-      Bucket: process.env.VITE_AWS_BUCKET_NAME,
+      Bucket: process.env.AWS_BUCKET_NAME,
       Key: thumbnailKey,
       ContentType: thumbnailContentType,
     });
