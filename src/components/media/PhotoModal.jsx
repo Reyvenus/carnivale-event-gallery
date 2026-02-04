@@ -37,23 +37,26 @@ const PhotoModal = ({ selectedPhoto, photos, onClose, setSelectedPhoto }) => {
     setIsActivelyMoving(false);
   }, [selectedPhoto]);
 
-  // Función para limitar el movimiento dentro de los bordes
+  // Función para limitar el movimiento y asegurar que el usuario nunca vea el fondo negro
   const constrainBoundaries = (x, y, scale) => {
     if (!imageRef.current || !containerRef.current) return { x, y };
 
     const containerRect = containerRef.current.getBoundingClientRect();
-    const imageRect = imageRef.current.getBoundingClientRect();
-
-    const currentW = imageRect.width;
-    const currentH = imageRect.height;
     const Cw = containerRect.width;
     const Ch = containerRect.height;
 
-    let maxX = 0;
-    if (currentW > Cw) maxX = (currentW - Cw) / (2 * scale);
+    // Tamaño base de la imagen (sin escala)
+    const baseW = imageRef.current.offsetWidth;
+    const baseH = imageRef.current.offsetHeight;
 
-    let maxY = 0;
-    if (currentH > Ch) maxY = (currentH - Ch) / (2 * scale);
+    // Tamaño real de la imagen con el zoom aplicado
+    const currentW = baseW * scale;
+    const currentH = baseH * scale;
+
+    // Calculamos el máximo desplazamiento posible para que los bordes de la imagen
+    // coincidan exactamente con los bordes del contenedor.
+    const maxX = currentW > Cw ? (currentW - Cw) / 2 : 0;
+    const maxY = currentH > Ch ? (currentH - Ch) / 2 : 0;
 
     return {
       x: Math.min(Math.max(x, -maxX), maxX),
@@ -161,17 +164,27 @@ const PhotoModal = ({ selectedPhoto, photos, onClose, setSelectedPhoto }) => {
   };
 
   const handleImageDoubleTap = (e) => {
-    // Quitamos stopPropagation para que el swipe pueda llegar al modal
     if (hasTouchMovement.current) return;
 
     const now = Date.now();
     if (now - lastTapTime.current < doubleTapDelay) {
-      setIsActivelyMoving(false);
-      setZoomScale(1);
-      setZoomTranslate({ x: 0, y: 0 });
-      lastScale.current = 1;
-      lastTranslate.current = { x: 0, y: 0 };
-      // Si reseteamos zoom, nos aseguramos de limpiar el ref de inicio para no disparar swipe accidental
+      if (zoomScale > 1) {
+        // Si ya hay zoom, volvemos al estado inicial
+        setIsActivelyMoving(false);
+        setZoomScale(1);
+        setZoomTranslate({ x: 0, y: 0 });
+        lastScale.current = 1;
+        lastTranslate.current = { x: 0, y: 0 };
+      } else {
+        // Si no hay zoom, hacemos un zoom rápido (ej: 2.5x)
+        setIsActivelyMoving(false);
+        const newScale = 2.5;
+        setZoomScale(newScale);
+        lastScale.current = newScale;
+
+        // Intentar centrar en el punto del tap si es posible (opcional)
+        // Por ahora simplemente activamos el zoom
+      }
       touchStartRef.current = 0;
     }
     lastTapTime.current = now;
@@ -240,12 +253,12 @@ const PhotoModal = ({ selectedPhoto, photos, onClose, setSelectedPhoto }) => {
             <div className="absolute inset-0 flex flex-col items-center justify-center z-0">
               <div className="relative">
                 <div className="text-7xl animate-pulse filter drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]">
-                  💃🕺
+                  💃
                 </div>
                 <div className="absolute -inset-4 border border-yellow-500/10 rounded-full animate-spin" style={{ animationDuration: '3s' }} />
               </div>
               <div className="mt-8 text-center">
-                <span className="text-yellow-200/50 text-xs uppercase tracking-[0.2em] font-light">Abriendo Recuerdo...</span>
+                <span className="text-yellow-200/50 text-xs uppercase tracking-[0.2em] font-light">Abriendo Foto...</span>
               </div>
             </div>
           )}
@@ -270,7 +283,6 @@ const PhotoModal = ({ selectedPhoto, photos, onClose, setSelectedPhoto }) => {
       </div>
     </div>
   );
-
 };
 
 export default PhotoModal;

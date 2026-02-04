@@ -10,10 +10,15 @@ function App() {
   // State to hold the play function from SongButton
   const [playMusic, setPlayMusic] = useState(null);
 
-  const handleEnter = () => {
+  const handleEnter = (e) => {
+    // Evitar propagación para asegurar que el evento sea capturado limpiamente
+    if (e) e.preventDefault();
+
     setEntered(true);
-    // Trigger music playback if available
+
+    // Trigger music playback IMMEDIATELY to keep context
     if (playMusic) {
+      console.log("Requesting music play from App.jsx");
       playMusic();
     }
   };
